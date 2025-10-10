@@ -1,6 +1,7 @@
 # Is It Worth Speeding It (Throughput)?
 
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fd-led%2Fiiwsit.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fd-led%2Fiiwsit?ref=badge_shield)
 
 An interactive decision helper tool to determine whether performance optimizations in throughput systems are worth the investment. Inspired by [xkcd #1205: "Is It Worth the Time?"](https://xkcd.com/1205/).
 
@@ -252,6 +253,9 @@ The MPLv2 is a simple copyleft license that allows you to:
 - ✅ Include in larger works under different licenses
 
 Just ensure that modifications to MPL-licensed files remain under MPL.
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fd-led%2Fiiwsit.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fd-led%2Fiiwsit?ref=badge_large)
 
 ## 🙏 Acknowledgments
 
