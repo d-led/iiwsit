@@ -58,6 +58,8 @@ function loadSettings(): void {
     settings.computeCostPerHour.toString();
   (document.getElementById('developer-rate') as HTMLInputElement).value =
     settings.developerHourlyRate.toString();
+  (document.getElementById('optimization-preference') as HTMLInputElement).value =
+    settings.optimizationPreference.toString();
 
   // Update slider value displays
   updateSliderDisplays();
@@ -100,6 +102,9 @@ function gatherFormParams(): CalculatorParams {
     developerHourlyRate: parseFloat(
       (document.getElementById('developer-rate') as HTMLInputElement).value
     ),
+    optimizationPreference: parseFloat(
+      (document.getElementById('optimization-preference') as HTMLInputElement).value
+    ),
   };
 }
 
@@ -127,6 +132,19 @@ function updateSliderDisplays(): void {
   if (bugFailureValue) {
     bugFailureValue.textContent = `${bugFailureSlider.value}%`;
   }
+
+  const optimizationPreferenceSlider = document.getElementById('optimization-preference') as HTMLInputElement;
+  const optimizationPreferenceLabel = document.getElementById('optimization-preference-label') as HTMLSpanElement;
+  if (optimizationPreferenceLabel && optimizationPreferenceSlider) {
+    const value = parseFloat(optimizationPreferenceSlider.value);
+    if (value < 33) {
+      optimizationPreferenceLabel.textContent = '💰 Cost-focused';
+    } else if (value > 67) {
+      optimizationPreferenceLabel.textContent = '⚡ Throughput-focused';
+    } else {
+      optimizationPreferenceLabel.textContent = '⚖️ Balanced';
+    }
+  }
 }
 
 /**
@@ -136,15 +154,82 @@ function getConfidenceExplanation(confidence: number): string {
   const riskPercent = (100 - confidence).toFixed(0);
 
   if (confidence >= 80) {
-    return `Go ahead - only ${riskPercent}% chance of losing money`;
+    return `Proceed with confidence - estimated ${riskPercent}% risk of negative outcome`;
   } else if (confidence >= 65) {
-    return `Likely good - ${riskPercent}% chance of losing money`;
+    return `Likely beneficial - estimated ${riskPercent}% risk of negative outcome`;
   } else if (confidence >= 50) {
-    return `Maybe - ${riskPercent}% chance of losing money`;
+    return `Mixed signals - estimated ${riskPercent}% risk of negative outcome`;
   } else if (confidence >= 35) {
-    return `Risky - ${riskPercent}% chance of losing money`;
+    return `Risky proposition - estimated ${riskPercent}% risk of negative outcome`;
   } else {
-    return `Don't do it - ${riskPercent}% chance of losing money`;
+    return `High risk - estimated ${riskPercent}% risk of negative outcome`;
+  }
+}
+
+/**
+ * Generate dynamic confidence factors explanation based on optimization preference
+ */
+function generateConfidenceFactorsText(costWeight: number, throughputWeight: number): string {
+  // Calculate the actual weights used in the scoring system
+  const financialBenefitWeight = Math.round(40 * costWeight);
+  const timeBenefitWeight = Math.round(40 * throughputWeight);
+  const financialROIWeight = Math.round(30 * costWeight);
+  const timeROIWeight = Math.round(30 * throughputWeight);
+  const financialBreakEvenWeight = Math.round(20 * costWeight);
+  const timeBreakEvenWeight = Math.round(20 * throughputWeight);
+  const failureImpactWeight = 15; // This stays constant
+  const speedGainWeight = 10; // This stays constant
+
+  const factors: string[] = [];
+
+  if (financialBenefitWeight > 0) {
+    factors.push(`Financial Benefit (${financialBenefitWeight}%)`);
+  }
+  if (timeBenefitWeight > 0) {
+    factors.push(`Time Benefit (${timeBenefitWeight}%)`);
+  }
+  if (financialROIWeight > 0) {
+    factors.push(`Financial ROI (${financialROIWeight}%)`);
+  }
+  if (timeROIWeight > 0) {
+    factors.push(`Time ROI (${timeROIWeight}%)`);
+  }
+  if (financialBreakEvenWeight > 0) {
+    factors.push(`Financial Break-Even (${financialBreakEvenWeight}%)`);
+  }
+  if (timeBreakEvenWeight > 0) {
+    factors.push(`Time Break-Even (${timeBreakEvenWeight}%)`);
+  }
+  if (failureImpactWeight > 0) {
+    factors.push(`Failure Rate Impact (${failureImpactWeight}%)`);
+  }
+  if (speedGainWeight > 0) {
+    factors.push(`Speed Gain (${speedGainWeight}%)`);
+  }
+
+  return `Confidence is based on ${factors.length} factors: ${factors.join(', ')}`;
+}
+
+/**
+ * Generate context-aware confidence message based on optimization preference
+ */
+function generateConfidenceMessage(confidenceValue: number, decision: string, optimizationPreference: number): string {
+  const confidencePercent = confidenceValue.toFixed(0);
+
+  // Determine the optimization focus context
+  let focusContext = '';
+  if (optimizationPreference < 33) {
+    focusContext = ' from a cost optimization perspective';
+  } else if (optimizationPreference > 67) {
+    focusContext = ' from a throughput optimization perspective';
+  } else {
+    focusContext = ' from a balanced perspective';
+  }
+
+  if (decision === 'proceed') {
+    return `${confidencePercent}% confident this optimization is beneficial${focusContext}`;
+  } else {
+    return `${confidencePercent}% confident this optimization is not worthwhile${focusContext}`;
   }
 }
 
@@ -192,12 +277,18 @@ document.addEventListener('DOMContentLoaded', () => {
   if (form) {
     const allInputs = form.querySelectorAll('input, select');
     allInputs.forEach((input) => {
-      input.addEventListener('input', triggerCalculation);
-      input.addEventListener('change', triggerCalculation);
+      // For range sliders, only calculate on change (when dragging ends) to prevent flickering
+      if (input instanceof HTMLInputElement && input.type === 'range') {
+        input.addEventListener('change', triggerCalculation);
+      } else {
+        // For other inputs, calculate on input for immediate feedback
+        input.addEventListener('input', triggerCalculation);
+        input.addEventListener('change', triggerCalculation);
+      }
     });
   }
 
-  // Update slider value displays in real-time
+  // Update slider value displays in real-time (but don't trigger calculation until drag ends)
   const currentFailureSlider = document.getElementById('current-failure') as HTMLInputElement;
   const currentFailureValue = document.getElementById('current-failure-value') as HTMLSpanElement;
   if (currentFailureSlider && currentFailureValue) {
@@ -211,6 +302,21 @@ document.addEventListener('DOMContentLoaded', () => {
   if (bugFailureSlider && bugFailureValue) {
     bugFailureSlider.addEventListener('input', () => {
       bugFailureValue.textContent = `${bugFailureSlider.value}%`;
+    });
+  }
+
+  const optimizationPreferenceSlider = document.getElementById('optimization-preference') as HTMLInputElement;
+  const optimizationPreferenceLabel = document.getElementById('optimization-preference-label') as HTMLSpanElement;
+  if (optimizationPreferenceSlider && optimizationPreferenceLabel) {
+    optimizationPreferenceSlider.addEventListener('input', () => {
+      const value = parseFloat(optimizationPreferenceSlider.value);
+      if (value < 33) {
+        optimizationPreferenceLabel.textContent = '💰 Cost-focused';
+      } else if (value > 67) {
+        optimizationPreferenceLabel.textContent = '⚡ Throughput-focused';
+      } else {
+        optimizationPreferenceLabel.textContent = '⚖️ Balanced';
+      }
     });
   }
 
@@ -255,7 +361,15 @@ function displayResults(result: CalculationResult): void {
 
   const confidenceValue = parseFloat(result.confidence);
   const decision = result.decision === 'YES' ? 'proceed' : 'not proceed';
-  confidence.textContent = `Confidence: ${result.confidence}% (${confidenceValue.toFixed(0)}% confident you should ${decision})`;
+
+  // Get optimization preference for context
+  const optimizationPreference = parseFloat(
+    (document.getElementById('optimization-preference') as HTMLInputElement).value
+  );
+
+  // Generate context-aware confidence message
+  const confidenceMessage = generateConfidenceMessage(confidenceValue, decision, optimizationPreference);
+  confidence.textContent = `Confidence: ${result.confidence}% (${confidenceMessage})`;
 
   // Add confidence explanation
   const confidenceExplanation = getConfidenceExplanation(parseFloat(result.confidence));
@@ -264,8 +378,11 @@ function displayResults(result: CalculationResult): void {
     confidenceElement.textContent = confidenceExplanation;
   }
 
-  // Add confidence factors explanation
-  const confidenceFactorsText = `Confidence is based on 4 factors: Financial Benefit (40%), ROI (30%), Break-Even Time (20%), and Failure Rate Impact (10%)`;
+  // Add dynamic confidence factors explanation based on optimization preference
+  const costWeight = (100 - optimizationPreference) / 100;
+  const throughputWeight = optimizationPreference / 100;
+
+  const confidenceFactorsText = generateConfidenceFactorsText(costWeight, throughputWeight);
   let confidenceFactorsElement = document.getElementById('confidence-factors');
   if (!confidenceFactorsElement) {
     confidenceFactorsElement = document.createElement('div');

@@ -18,6 +18,7 @@ export const DEFAULT_CALCULATOR_PARAMS: CalculatorParams = {
   timeHorizonUnit: 'year',
   computeCostPerHour: 0.5,
   developerHourlyRate: 75,
+  optimizationPreference: 50, // Balanced by default
 };
 
 /**

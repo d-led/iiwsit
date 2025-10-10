@@ -31,6 +31,38 @@
           <div class="card bg-base-100 shadow-xl" data-cy="inputs-section">
             <div class="card-body p-4 sm:p-6">
               <form id="calculator-form" class="space-y-4 sm:space-y-6">
+                <!-- Optimization Preference Slider -->
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text font-semibold text-sm sm:text-base"
+                      >Optimization Focus:
+                      <span id="optimization-preference-label" class="text-primary">Balanced</span></span
+                    >
+                  </label>
+                  <input
+                    type="range"
+                    id="optimization-preference"
+                    class="range range-primary w-full"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="50"
+                  />
+                  <div class="w-full flex justify-between text-xs mt-1">
+                    <span class="text-left">💰 Cost</span>
+                    <span class="text-center">⚖️ Balanced</span>
+                    <span class="text-right">⚡ Throughput</span>
+                  </div>
+                  <label class="label">
+                    <span class="label-text-alt text-xs sm:text-sm"
+                      >Adjust decision weighting: Cost optimization (💰) vs Throughput optimization (⚡)</span
+                    >
+                  </label>
+                </div>
+
+                <!-- Divider -->
+                <div class="divider text-sm font-semibold">System Parameters</div>
+
                 <!-- Request Rate -->
                 <div class="form-control">
                   <label class="label">
@@ -133,7 +165,7 @@
                   <input
                     type="range"
                     id="current-failure"
-                    class="range range-primary"
+                    class="range range-primary w-full"
                     min="0"
                     max="100"
                     step="1"
@@ -157,7 +189,7 @@
                   <input
                     type="range"
                     id="bug-failure"
-                    class="range range-primary"
+                    class="range range-primary w-full"
                     min="0"
                     max="100"
                     step="1"

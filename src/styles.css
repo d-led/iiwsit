@@ -21,6 +21,16 @@
   @apply text-warning;
 }
 
+/* Ensure range sliders use full width and align with labels */
+.range {
+  @apply w-full;
+}
+
+/* Prevent flickering by ensuring smooth slider interaction */
+input[type="range"].range {
+  @apply w-full;
+}
+
 /* Fix input height consistency on mobile */
 @media (max-width: 640px) {
   .input,

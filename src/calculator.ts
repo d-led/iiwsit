@@ -69,6 +69,7 @@ export class ThroughputOptimizationCalculator {
    * Make a decision based on calculated factors
    * Primary focus: Financial ROI
    * Secondary: Speed improvement value
+   * Adjustable via optimizationPreference: 0 = pure cost, 100 = pure throughput, 50 = balanced
    */
   private makeDecision(
     timeFactors: DecisionFactors,
@@ -78,28 +79,38 @@ export class ThroughputOptimizationCalculator {
       breakEvenYearsMoney: number;
       computeCostSavings: number;
       totalCostMoney: number;
-    }
+    },
+    optimizationPreference: number
   ): DecisionResult {
-    const { timeHorizonYears, failureRateChange, speedGainFraction } = timeFactors;
+    const { timeHorizonYears, failureRateChange, speedGainFraction, netBenefit, roi, breakEvenYears } = timeFactors;
 
     const { netBenefitMoney, roiMoney, breakEvenYearsMoney } = moneyFactors;
+
+    // Calculate weight distribution based on optimization preference
+    // 0 = pure cost (100% money, 0% time), 100 = pure throughput (0% money, 100% time), 50 = balanced (50/50)
+    const costWeight = (100 - optimizationPreference) / 100; // 1.0 at pref=0, 0.0 at pref=100, 0.5 at pref=50
+    const throughputWeight = optimizationPreference / 100; // 0.0 at pref=0, 1.0 at pref=100, 0.5 at pref=50
 
     let score = 0;
     let maxScore = 0;
     const reasons: string[] = [];
 
     // Add explanation of the scoring system
+    const prefDescription =
+      optimizationPreference < 33 ? 'Cost-optimized' :
+      optimizationPreference > 67 ? 'Throughput-optimized' : 'Balanced';
     reasons.push(
-      'Scoring: Each factor contributes points based on its impact. Higher scores indicate stronger recommendations.'
+      `Scoring (${prefDescription} mode): Each factor contributes points based on its impact. Higher scores indicate stronger recommendations.`
     );
 
-    // Factor 1: Monetary Net Benefit (40 points) - PRIMARY DRIVER
-    maxScore += 40;
+    // Factor 1a: Monetary Net Benefit (weighted by cost preference)
+    const moneyBenefitWeight = 40 * costWeight;
+    maxScore += moneyBenefitWeight;
     if (netBenefitMoney > 0) {
-      const benefitScore = Math.min(40, (netBenefitMoney / moneyFactors.totalCostMoney) * 15);
+      const benefitScore = Math.min(moneyBenefitWeight, (netBenefitMoney / moneyFactors.totalCostMoney) * 15 * costWeight);
       score += benefitScore;
       reasons.push(
-        `Positive financial benefit of 💰${netBenefitMoney.toFixed(2)} (+${benefitScore.toFixed(1)} points)`
+        `Positive financial benefit of 💰${netBenefitMoney.toFixed(2)} (+${benefitScore.toFixed(1)} points, weight: ${(costWeight * 100).toFixed(0)}%)`
       );
     } else {
       reasons.push(
@@ -107,49 +118,93 @@ export class ThroughputOptimizationCalculator {
       );
     }
 
-    // Factor 2: ROI (30 points) - Monetary focus
-    maxScore += 30;
-    let roiScore = 0;
+    // Factor 1b: Time-based Net Benefit (weighted by throughput preference)
+    const timeBenefitWeight = 40 * throughputWeight;
+    maxScore += timeBenefitWeight;
+    if (netBenefit > 0) {
+      const benefitScore = Math.min(timeBenefitWeight, (netBenefit / timeFactors.totalCost) * 15 * throughputWeight);
+      score += benefitScore;
+      reasons.push(
+        `Positive time benefit of ${netBenefit.toFixed(2)} hours (+${benefitScore.toFixed(1)} points, weight: ${(throughputWeight * 100).toFixed(0)}%)`
+      );
+    } else {
+      reasons.push(
+        `Negative time benefit of ${Math.abs(netBenefit).toFixed(2)} hours (0 points - no benefit)`
+      );
+    }
+
+    // Factor 2a: Monetary ROI (weighted by cost preference)
+    const moneyRoiWeight = 30 * costWeight;
+    maxScore += moneyRoiWeight;
+    let roiMoneyScore = 0;
 
     if (roiMoney > 200) {
-      roiScore += 30;
+      roiMoneyScore = moneyRoiWeight;
       reasons.push(
-        `Excellent monetary ROI of ${roiMoney.toFixed(0)}% (+30 points - exceptional return)`
+        `Excellent monetary ROI of ${roiMoney.toFixed(0)}% (+${roiMoneyScore.toFixed(1)} points - exceptional return, weight: ${(costWeight * 100).toFixed(0)}%)`
       );
     } else if (roiMoney > 100) {
-      roiScore += 25;
-      reasons.push(`Great monetary ROI of ${roiMoney.toFixed(0)}% (+25 points - strong return)`);
+      roiMoneyScore = moneyRoiWeight * 0.83;
+      reasons.push(`Great monetary ROI of ${roiMoney.toFixed(0)}% (+${roiMoneyScore.toFixed(1)} points - strong return)`);
     } else if (roiMoney > 50) {
-      roiScore += 20;
-      reasons.push(`Good monetary ROI of ${roiMoney.toFixed(0)}% (+20 points - solid return)`);
+      roiMoneyScore = moneyRoiWeight * 0.67;
+      reasons.push(`Good monetary ROI of ${roiMoney.toFixed(0)}% (+${roiMoneyScore.toFixed(1)} points - solid return)`);
     } else if (roiMoney > 20) {
-      roiScore += 15;
-      reasons.push(`Moderate monetary ROI of ${roiMoney.toFixed(0)}% (+15 points - decent return)`);
+      roiMoneyScore = moneyRoiWeight * 0.5;
+      reasons.push(`Moderate monetary ROI of ${roiMoney.toFixed(0)}% (+${roiMoneyScore.toFixed(1)} points - decent return)`);
     } else if (roiMoney > 0) {
-      roiScore += 10;
-      reasons.push(`Low monetary ROI of ${roiMoney.toFixed(0)}% (+10 points - minimal return)`);
+      roiMoneyScore = moneyRoiWeight * 0.33;
+      reasons.push(`Low monetary ROI of ${roiMoney.toFixed(0)}% (+${roiMoneyScore.toFixed(1)} points - minimal return)`);
     } else {
       reasons.push(`Negative monetary ROI of ${roiMoney.toFixed(0)}% (0 points - no return)`);
     }
-    score += roiScore;
+    score += roiMoneyScore;
 
-    // Factor 3: Break-even time (20 points) - Monetary focus
-    maxScore += 20;
+    // Factor 2b: Time-based ROI (weighted by throughput preference)
+    const timeRoiWeight = 30 * throughputWeight;
+    maxScore += timeRoiWeight;
+    let roiTimeScore = 0;
+
+    if (roi > 200) {
+      roiTimeScore = timeRoiWeight;
+      reasons.push(
+        `Excellent time ROI of ${roi.toFixed(0)}% (+${roiTimeScore.toFixed(1)} points - exceptional return, weight: ${(throughputWeight * 100).toFixed(0)}%)`
+      );
+    } else if (roi > 100) {
+      roiTimeScore = timeRoiWeight * 0.83;
+      reasons.push(`Great time ROI of ${roi.toFixed(0)}% (+${roiTimeScore.toFixed(1)} points - strong return)`);
+    } else if (roi > 50) {
+      roiTimeScore = timeRoiWeight * 0.67;
+      reasons.push(`Good time ROI of ${roi.toFixed(0)}% (+${roiTimeScore.toFixed(1)} points - solid return)`);
+    } else if (roi > 20) {
+      roiTimeScore = timeRoiWeight * 0.5;
+      reasons.push(`Moderate time ROI of ${roi.toFixed(0)}% (+${roiTimeScore.toFixed(1)} points - decent return)`);
+    } else if (roi > 0) {
+      roiTimeScore = timeRoiWeight * 0.33;
+      reasons.push(`Low time ROI of ${roi.toFixed(0)}% (+${roiTimeScore.toFixed(1)} points - minimal return)`);
+    } else {
+      reasons.push(`Negative time ROI of ${roi.toFixed(0)}% (0 points - no return)`);
+    }
+    score += roiTimeScore;
+
+    // Factor 3a: Monetary Break-even time (weighted by cost preference)
+    const moneyBreakEvenWeight = 20 * costWeight;
+    maxScore += moneyBreakEvenWeight;
     if (isFinite(breakEvenYearsMoney)) {
       if (breakEvenYearsMoney < timeHorizonYears * 0.25) {
-        score += 20;
+        score += moneyBreakEvenWeight;
         reasons.push(
-          `Quick monetary break-even in ${breakEvenYearsMoney.toFixed(2)} years (+20 points - very fast payback)`
+          `Quick monetary break-even in ${breakEvenYearsMoney.toFixed(2)} years (+${moneyBreakEvenWeight.toFixed(1)} points - very fast payback, weight: ${(costWeight * 100).toFixed(0)}%)`
         );
       } else if (breakEvenYearsMoney < timeHorizonYears * 0.5) {
-        score += 15;
+        score += moneyBreakEvenWeight * 0.75;
         reasons.push(
-          `Reasonable monetary break-even in ${breakEvenYearsMoney.toFixed(2)} years (+15 points - good payback)`
+          `Reasonable monetary break-even in ${breakEvenYearsMoney.toFixed(2)} years (+${(moneyBreakEvenWeight * 0.75).toFixed(1)} points - good payback)`
         );
       } else if (breakEvenYearsMoney < timeHorizonYears) {
-        score += 10;
+        score += moneyBreakEvenWeight * 0.5;
         reasons.push(
-          `Monetary break-even within time horizon at ${breakEvenYearsMoney.toFixed(2)} years (+10 points - acceptable payback)`
+          `Monetary break-even within time horizon at ${breakEvenYearsMoney.toFixed(2)} years (+${(moneyBreakEvenWeight * 0.5).toFixed(1)} points - acceptable payback)`
         );
       } else {
         reasons.push(
@@ -158,6 +213,34 @@ export class ThroughputOptimizationCalculator {
       }
     } else {
       reasons.push('Never breaks even monetarily (0 points - infinite payback time)');
+    }
+
+    // Factor 3b: Time-based Break-even (weighted by throughput preference)
+    const timeBreakEvenWeight = 20 * throughputWeight;
+    maxScore += timeBreakEvenWeight;
+    if (isFinite(breakEvenYears)) {
+      if (breakEvenYears < timeHorizonYears * 0.25) {
+        score += timeBreakEvenWeight;
+        reasons.push(
+          `Quick time-based break-even in ${breakEvenYears.toFixed(2)} years (+${timeBreakEvenWeight.toFixed(1)} points - very fast payback, weight: ${(throughputWeight * 100).toFixed(0)}%)`
+        );
+      } else if (breakEvenYears < timeHorizonYears * 0.5) {
+        score += timeBreakEvenWeight * 0.75;
+        reasons.push(
+          `Reasonable time-based break-even in ${breakEvenYears.toFixed(2)} years (+${(timeBreakEvenWeight * 0.75).toFixed(1)} points - good payback)`
+        );
+      } else if (breakEvenYears < timeHorizonYears) {
+        score += timeBreakEvenWeight * 0.5;
+        reasons.push(
+          `Time-based break-even within time horizon at ${breakEvenYears.toFixed(2)} years (+${(timeBreakEvenWeight * 0.5).toFixed(1)} points - acceptable payback)`
+        );
+      } else {
+        reasons.push(
+          `Time-based break-even beyond time horizon at ${breakEvenYears.toFixed(2)} years (0 points - too long)`
+        );
+      }
+    } else {
+      reasons.push('Never breaks even on time (0 points - infinite payback time)');
     }
 
     // Factor 4: Failure rate improvement (15 points)
@@ -326,7 +409,8 @@ export class ThroughputOptimizationCalculator {
         breakEvenYearsMoney,
         computeCostSavings,
         totalCostMoney,
-      }
+      },
+      params.optimizationPreference
     );
 
     return {

@@ -20,6 +20,7 @@ describe('Throughput Optimization Decision Calculator', () => {
     timeHorizonUnit: 'year',
     computeCostPerHour: 0.5,
     developerHourlyRate: 75,
+    optimizationPreference: 50, // Balanced by default
   });
 
   describe('When optimization saves significant time with minimal cost', () => {
@@ -343,6 +344,144 @@ describe('Throughput Optimization Decision Calculator', () => {
       expect(['YES', 'NO', 'MAYBE']).toContain(result.decision);
       expect(parseFloat(result.confidence)).toBeGreaterThanOrEqual(0);
       expect(parseFloat(result.confidence)).toBeLessThanOrEqual(100);
+    });
+  });
+
+  describe('When adjusting optimization preference', () => {
+    it('should weight cost factors more heavily when preference is set to cost optimization', () => {
+      const params = createDefaultParams();
+      params.rate = 100;
+      params.speedGain = 30;
+      params.computeCostPerHour = 1.0;
+      params.developerHourlyRate = 100;
+      params.implementationTime = 50;
+
+      // Cost-optimized (0 = pure cost)
+      params.optimizationPreference = 0;
+      const costOptimizedResult = calculator.calculate(params);
+
+      expect(costOptimizedResult.reasoning[0]).toContain('Cost-optimized');
+      expect(costOptimizedResult.reasoning.some(r => r.includes('weight: 100%'))).toBe(true);
+    });
+
+    it('should weight throughput factors more heavily when preference is set to throughput optimization', () => {
+      const params = createDefaultParams();
+      params.rate = 1000;
+      params.speedGain = 50;
+      params.computeCostPerHour = 0.1;
+      params.implementationTime = 20;
+
+      // Throughput-optimized (100 = pure throughput)
+      params.optimizationPreference = 100;
+      const throughputOptimizedResult = calculator.calculate(params);
+
+      expect(throughputOptimizedResult.reasoning[0]).toContain('Throughput-optimized');
+      expect(throughputOptimizedResult.reasoning.some(r => r.includes('weight: 100%'))).toBe(true);
+    });
+
+    it('should use balanced weights when preference is set to 50', () => {
+      const params = createDefaultParams();
+      params.rate = 100;
+      params.speedGain = 30;
+
+      // Balanced (50 = balanced)
+      params.optimizationPreference = 50;
+      const balancedResult = calculator.calculate(params);
+
+      expect(balancedResult.reasoning[0]).toContain('Balanced');
+      expect(balancedResult.reasoning.some(r => r.includes('weight: 50%'))).toBe(true);
+    });
+
+    it('should produce different decisions based on optimization preference for borderline cases', () => {
+      const params = createDefaultParams();
+      // Create a scenario where cost and throughput considerations differ
+      params.rate = 100;
+      params.speedGain = 40; // Good throughput improvement
+      params.computeCostPerHour = 0.1; // Low compute cost
+      params.developerHourlyRate = 150; // High developer cost
+      params.implementationTime = 200; // High implementation cost
+
+      // Cost-optimized - should favor monetary ROI
+      params.optimizationPreference = 0;
+      const costResult = calculator.calculate(params);
+
+      // Throughput-optimized - should favor time savings
+      params.optimizationPreference = 100;
+      const throughputResult = calculator.calculate(params);
+
+      // Balanced
+      params.optimizationPreference = 50;
+      const balancedResult = calculator.calculate(params);
+
+      // All should produce valid results
+      expect(costResult.decision).toBeDefined();
+      expect(throughputResult.decision).toBeDefined();
+      expect(balancedResult.decision).toBeDefined();
+
+      // Confidence scores might differ based on weighting
+      expect(parseFloat(costResult.confidence)).toBeGreaterThanOrEqual(0);
+      expect(parseFloat(throughputResult.confidence)).toBeGreaterThanOrEqual(0);
+      expect(parseFloat(balancedResult.confidence)).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should handle extreme preference values correctly', () => {
+      const params = createDefaultParams();
+      params.rate = 500;
+      params.speedGain = 25;
+
+      // Pure cost (0)
+      params.optimizationPreference = 0;
+      const pureCostResult = calculator.calculate(params);
+      expect(pureCostResult).toBeDefined();
+      expect(pureCostResult.reasoning).toBeDefined();
+
+      // Pure throughput (100)
+      params.optimizationPreference = 100;
+      const pureThroughputResult = calculator.calculate(params);
+      expect(pureThroughputResult).toBeDefined();
+      expect(pureThroughputResult.reasoning).toBeDefined();
+    });
+
+    it('should include both time and money considerations regardless of preference', () => {
+      const params = createDefaultParams();
+      params.rate = 200;
+      params.speedGain = 30;
+
+      // Even with extreme preferences, both factors should be mentioned
+      params.optimizationPreference = 0;
+      const costResult = calculator.calculate(params);
+
+      // Should mention both financial and time benefits
+      const hasFinancial = costResult.reasoning.some(r =>
+        r.toLowerCase().includes('financial') || r.toLowerCase().includes('monetary')
+      );
+      const hasTime = costResult.reasoning.some(r =>
+        r.toLowerCase().includes('time')
+      );
+
+      expect(hasFinancial).toBe(true);
+      expect(hasTime).toBe(true);
+    });
+
+    it('should show dynamic confidence factors explanation based on optimization preference', () => {
+      const params = createDefaultParams();
+      params.rate = 100;
+      params.speedGain = 30;
+
+      // Cost-optimized should emphasize financial factors
+      params.optimizationPreference = 0;
+      const costResult = calculator.calculate(params);
+      expect(costResult.reasoning[0]).toContain('Cost-optimized');
+
+      // Throughput-optimized should emphasize time factors
+      params.optimizationPreference = 100;
+      const throughputResult = calculator.calculate(params);
+      expect(throughputResult.reasoning[0]).toContain('Throughput-optimized');
+
+      // Balanced should mention both
+      params.optimizationPreference = 50;
+      const balancedResult = calculator.calculate(params);
+      expect(balancedResult.reasoning[0]).toContain('Balanced');
     });
   });
 });

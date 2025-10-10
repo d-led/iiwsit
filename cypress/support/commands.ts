@@ -21,6 +21,7 @@ const SELECTORS = {
   timeHorizonUnit: '#time-horizon-unit',
   computeCost: '#compute-cost',
   developerRate: '#developer-rate',
+  optimizationPreference: '#optimization-preference',
   resetButton: '#reset-button',
 
   // Results
@@ -62,6 +63,7 @@ declare global {
       enterTimeHorizon(time: number, unit?: 'month' | 'year'): Chainable<void>;
       enterComputeCost(cost: number): Chainable<void>;
       enterDeveloperRate(rate: number): Chainable<void>;
+      enterOptimizationPreference(preference: number): Chainable<void>;
 
       // Action commands
       calculate(): Chainable<void>;
@@ -162,6 +164,10 @@ Cypress.Commands.add('enterComputeCost', (cost: number) => {
 
 Cypress.Commands.add('enterDeveloperRate', (rate: number) => {
   cy.get(SELECTORS.developerRate).clear().type(rate.toString());
+});
+
+Cypress.Commands.add('enterOptimizationPreference', (preference: number) => {
+  cy.get(SELECTORS.optimizationPreference).invoke('val', preference).trigger('input');
 });
 
 // Action Commands
@@ -288,7 +294,7 @@ Cypress.Commands.add('shouldShowConfidenceExplanation', () => {
   // Should contain actionable language for busy users
   cy.get('#confidence-explanation')
     .invoke('text')
-    .should('match', /^(Go ahead|Likely good|Maybe|Risky|Don't do it)/);
+    .should('match', /^(Proceed with confidence|Likely beneficial|Mixed signals|Risky proposition|High risk)/);
 });
 
 Cypress.Commands.add('shouldDisplayMonetaryMetrics', () => {
@@ -317,6 +323,7 @@ Cypress.Commands.add('shouldHaveDefaultConfiguration', () => {
     .invoke('val')
     .should('match', /^0\.5(0)?$/);
   cy.get(SELECTORS.developerRate).should('have.value', '75');
+  cy.get(SELECTORS.optimizationPreference).should('have.value', '50');
 });
 
 Cypress.Commands.add('shouldNotShowResults', () => {

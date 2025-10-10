@@ -21,6 +21,8 @@ export interface CalculatorParams {
   // Monetary parameters
   computeCostPerHour: number;
   developerHourlyRate: number;
+  // Optimization preference: 0 = pure cost optimization, 100 = pure throughput optimization, 50 = balanced
+  optimizationPreference: number;
 }
 
 export interface CalculationMetrics {

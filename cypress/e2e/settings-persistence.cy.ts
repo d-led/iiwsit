@@ -29,6 +29,7 @@ describe('Settings Persistence - Local Storage', () => {
         'time-horizon': '1',
         'compute-cost': '0.75',
         'developer-rate': '100',
+        'optimization-preference': '50',
       });
     });
 
@@ -45,6 +46,20 @@ describe('Settings Persistence - Local Storage', () => {
       cy.shouldHaveConfiguredValues({
         'compute-cost': '1.25',
         'developer-rate': '85',
+      });
+    });
+
+    it('should persist optimization preference slider', () => {
+      // Given a user sets a specific optimization preference
+      cy.enterOptimizationPreference(75); // Throughput-focused
+      cy.calculate();
+
+      // When the user reloads the page
+      cy.reload();
+
+      // Then the optimization preference should be restored
+      cy.shouldHaveConfiguredValues({
+        'optimization-preference': '75',
       });
     });
 
@@ -174,6 +189,7 @@ describe('Settings Persistence - Local Storage', () => {
           timeHorizonUnit: 'year',
           computeCostPerHour: 1.0,
           developerHourlyRate: 120,
+          optimizationPreference: 50,
         };
         win.localStorage.setItem('iiwsit-calculator-settings', JSON.stringify(newSettings));
 
