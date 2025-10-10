@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en" data-theme="cupcake">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Is It Worth Speeding It (Throughput)? - XKCD Inspired</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="min-h-screen bg-base-200 py-4 sm:py-8 px-3 sm:px-4">
+      <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="card bg-base-100 shadow-xl mb-6 sm:mb-8">
+          <div class="card-body p-4 sm:p-6 text-center">
+            <h1
+              class="card-title text-2xl sm:text-3xl lg:text-4xl font-bold justify-center leading-tight"
+            >
+              Is It Worth Speeding It (Throughput)?
+            </h1>
+            <p class="text-center text-base-content/50 italic text-xs mt-2">
+              ⚠️ This is an experimental tool for thought-provoking educational purposes only. Not financial or architectural advice!
+              No warranty of correctness or consequences. Use at your own risk.
+            </p>
+          </div>
+        </div>
+
+        <!-- Two Column Layout on Large Screens -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+          <!-- Left Column: Input Form -->
+          <div class="card bg-base-100 shadow-xl" data-cy="inputs-section">
+            <div class="card-body p-4 sm:p-6">
+
+              <form id="calculator-form" class="space-y-4 sm:space-y-6">
+                <!-- Request Rate -->
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text font-semibold text-sm sm:text-base">Request Rate</span>
+                  </label>
+                  <div class="join w-full flex-col sm:flex-row">
+                    <input
+                      type="number"
+                      id="rate"
+                      class="input input-bordered join-item flex-1 w-full sm:w-auto"
+                      placeholder="100"
+                      value="100"
+                      min="0"
+                      step="0.01"
+                      required
+                    />
+                    <select
+                      id="rate-unit"
+                      class="select select-bordered join-item w-full sm:w-auto mt-1 sm:mt-0"
+                    >
+                      <option value="second">req/second</option>
+                      <option value="minute">req/minute</option>
+                      <option value="hour">req/hour</option>
+                    </select>
+                  </div>
+                  <label class="label">
+                    <span class="label-text-alt text-xs sm:text-sm"
+                      >Average number of requests per unit of time</span
+                    >
+                  </label>
+                </div>
+
+                <!-- Average Request Duration -->
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text font-semibold text-sm sm:text-base"
+                      >Average Request Duration</span
+                    >
+                  </label>
+                  <div class="join w-full flex-col sm:flex-row">
+                    <input
+                      type="number"
+                      id="duration"
+                      class="input input-bordered join-item flex-1 w-full sm:w-auto"
+                      placeholder="500"
+                      value="500"
+                      min="0"
+                      step="0.01"
+                      required
+                    />
+                    <select
+                      id="duration-unit"
+                      class="select select-bordered join-item w-full sm:w-auto mt-1 sm:mt-0"
+                    >
+                      <option value="millisecond">milliseconds</option>
+                      <option value="second">seconds</option>
+                      <option value="minute">minutes</option>
+                    </select>
+                  </div>
+                  <label class="label">
+                    <span class="label-text-alt text-xs sm:text-sm"
+                      >Average time to process a single request</span
+                    >
+                  </label>
+                </div>
+
+                <!-- Speed Gain -->
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text font-semibold text-sm sm:text-base"
+                      >Expected Speed Gain (%)</span
+                    >
+                  </label>
+                  <input
+                    type="number"
+                    id="speed-gain"
+                    class="input input-bordered w-full"
+                    placeholder="20"
+                    value="20"
+                    min="0"
+                    step="0.1"
+                    required
+                  />
+                  <label class="label">
+                    <span class="label-text-alt text-xs sm:text-sm"
+                      >Percentage reduction in request duration (can be >100% for major
+                      improvements)</span
+                    >
+                  </label>
+                </div>
+
+                <!-- Current Failure Rate -->
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text font-semibold text-sm sm:text-base"
+                      >Current Failure Rate:
+                      <span id="current-failure-value" class="text-primary">5%</span></span
+                    >
+                  </label>
+                  <input
+                    type="range"
+                    id="current-failure"
+                    class="range range-primary"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="5"
+                  />
+                  <label class="label">
+                    <span class="label-text-alt text-xs sm:text-sm"
+                      >Percentage of requests that fail or miss deadlines now</span
+                    >
+                  </label>
+                </div>
+
+                <!-- Bug-Induced Failure Rate -->
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text font-semibold text-sm sm:text-base"
+                      >Expected Introduced Bug-Induced Failure Rate:
+                      <span id="bug-failure-value" class="text-primary">1%</span></span
+                    >
+                  </label>
+                  <input
+                    type="range"
+                    id="bug-failure"
+                    class="range range-primary"
+                    min="0"
+                    max="100"
+                    step="1"
+                    value="1"
+                  />
+                  <label class="label">
+                    <span class="label-text-alt text-xs sm:text-sm"
+                      >Expected failures from newly introduced bugs</span
+                    >
+                  </label>
+                </div>
+
+                <!-- Maintenance Time -->
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text font-semibold text-sm sm:text-base"
+                      >Maintenance Time Investment</span
+                    >
+                  </label>
+                  <div class="join w-full flex-col sm:flex-row">
+                    <input
+                      type="number"
+                      id="maintenance"
+                      class="input input-bordered join-item flex-1 w-full sm:w-auto"
+                      placeholder="2"
+                      value="2"
+                      min="0"
+                      step="0.1"
+                      required
+                    />
+                    <select
+                      id="maintenance-unit"
+                      class="select select-bordered join-item w-full sm:w-auto mt-1 sm:mt-0"
+                    >
+                      <option value="hour-per-day">hours/day</option>
+                      <option value="hour-per-week">hours/week</option>
+                      <option value="hour-per-month">hours/month</option>
+                    </select>
+                  </div>
+                  <label class="label">
+                    <span class="label-text-alt text-xs sm:text-sm"
+                      >Time needed to maintain and run the optimized solution</span
+                    >
+                  </label>
+                </div>
+
+                <!-- Implementation Time -->
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text font-semibold text-sm sm:text-base"
+                      >Implementation Time (hours)</span
+                    >
+                  </label>
+                  <input
+                    type="number"
+                    id="implementation-time"
+                    class="input input-bordered w-full"
+                    placeholder="40"
+                    value="40"
+                    min="0"
+                    step="1"
+                    required
+                  />
+                  <label class="label">
+                    <span class="label-text-alt text-xs sm:text-sm"
+                      >One-time cost: hours needed to implement the optimization</span
+                    >
+                  </label>
+                </div>
+
+                <!-- Time Horizon -->
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text font-semibold text-sm sm:text-base">Time Horizon</span>
+                  </label>
+                  <div class="join w-full flex-col sm:flex-row">
+                    <input
+                      type="number"
+                      id="time-horizon"
+                      class="input input-bordered join-item flex-1 w-full sm:w-auto"
+                      placeholder="1"
+                      value="1"
+                      min="1"
+                      step="1"
+                      required
+                    />
+                    <select
+                      id="time-horizon-unit"
+                      class="select select-bordered join-item w-full sm:w-auto mt-1 sm:mt-0"
+                    >
+                      <option value="month">months</option>
+                      <option value="year" selected>years</option>
+                    </select>
+                  </div>
+                  <label class="label">
+                    <span class="label-text-alt text-xs sm:text-sm"
+                      >How long do you plan to use this system?</span
+                    >
+                  </label>
+                </div>
+
+                <!-- Divider -->
+                <div class="divider text-sm font-semibold">Monetary Analysis (2025 Rates)</div>
+
+                <!-- Compute Cost Per Hour -->
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text font-semibold text-sm sm:text-base"
+                      >Compute Cost per Hour (💰)</span
+                    >
+                  </label>
+                  <input
+                    type="number"
+                    id="compute-cost"
+                    class="input input-bordered w-full"
+                    placeholder="0.50"
+                    value="0.50"
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                  <label class="label">
+                    <span class="label-text-alt text-xs sm:text-sm"
+                      >Cost per hour of server/cloud compute (e.g., AWS EC2: 0.10-2/hr)</span
+                    >
+                  </label>
+                </div>
+
+                <!-- Developer Hourly Rate -->
+                <div class="form-control">
+                  <label class="label">
+                    <span class="label-text font-semibold text-sm sm:text-base"
+                      >Developer Hourly Rate (💰)</span
+                    >
+                  </label>
+                  <input
+                    type="number"
+                    id="developer-rate"
+                    class="input input-bordered w-full"
+                    placeholder="75"
+                    value="75"
+                    min="0"
+                    step="1"
+                    required
+                  />
+                  <label class="label">
+                    <span class="label-text-alt text-xs sm:text-sm"
+                      >Fully-loaded dev cost (US avg 2025: 65-150/hr depending on seniority)</span
+                    >
+                  </label>
+                </div>
+
+                <!-- Auto-calculate notice -->
+                <div class="alert alert-info text-sm mt-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    class="stroke-current shrink-0 w-6 h-6"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
+                  </svg>
+                  <span>Results update automatically as you adjust parameters</span>
+                </div>
+
+                <!-- Reset to defaults button -->
+                <div class="flex justify-end mt-4">
+                  <button
+                    id="reset-button"
+                    type="button"
+                    class="btn btn-outline btn-sm"
+                    title="Reset all parameters to default values"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Reset to Defaults
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Right Column: Results Section -->
+          <div class="lg:sticky lg:top-6 lg:self-start" data-cy="results-section">
+            <div id="results-section" class="space-y-4 sm:space-y-6">
+              <!-- Decision Badge -->
+              <div class="card bg-base-100 shadow-xl">
+                <div class="card-body p-4 sm:p-6 text-center">
+                  <div
+                    id="decision-badge"
+                    class="text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4"
+                  ></div>
+                  <div
+                    id="confidence"
+                    class="text-lg sm:text-xl lg:text-2xl text-base-content/70"
+                  ></div>
+                  <div
+                    id="confidence-explanation"
+                    class="text-sm text-base-content/60 italic"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Metrics Breakdown -->
+              <div class="card bg-base-100 shadow-xl">
+                <div class="card-body p-4 sm:p-6">
+                  <h3 class="card-title text-xl sm:text-2xl mb-3 sm:mb-4">Calculation Breakdown</h3>
+                  <div id="metrics-breakdown" class="overflow-x-auto -mx-4 sm:mx-0">
+                    <table class="table table-zebra text-sm sm:text-base">
+                      <tbody id="metrics-table-body"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Explanation -->
+              <div class="card bg-base-100 shadow-xl">
+                <div class="card-body p-4 sm:p-6">
+                  <h3 class="card-title text-xl sm:text-2xl mb-3 sm:mb-4">Explanation</h3>
+                  <div id="explanation-content" class="text-sm sm:text-base"></div>
+                </div>
+              </div>
+
+              <!-- Placeholder when no results yet -->
+              <div id="results-placeholder" class="card bg-base-100 shadow-xl">
+                <div class="card-body p-8 text-center">
+                  <div class="text-6xl mb-4">📊</div>
+                  <h3 class="text-xl font-bold mb-2">Live Results</h3>
+                  <p class="text-base-content/70">
+                    Adjust parameters on the left to see instant calculations
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Decision Bubble (Mobile/Tablet only) -->
+        <div
+          id="floating-bubble"
+          data-cy="floating-bubble"
+          class="lg:hidden fixed bottom-6 right-6 z-50 opacity-0 transition-all duration-300 pointer-events-none"
+          style="display: none"
+        >
+          <button
+            id="bubble-button"
+            class="btn btn-circle shadow-2xl hover:scale-110 transition-transform"
+            style="width: 70px; height: 70px;"
+            aria-label="View results"
+          >
+            <div class="flex flex-col items-center justify-center">
+              <div id="bubble-decision" class="text-lg font-bold leading-tight"></div>
+              <div id="bubble-confidence" class="text-xs leading-tight"></div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center mt-8 sm:mt-12 text-base-content/60 text-xs sm:text-sm px-2">
+          <p class="mb-2">
+            Inspired by
+            <a href="https://xkcd.com/1205/" target="_blank" class="link link-primary"
+              >xkcd #1205: Is It Worth the Time?</a
+            >
+          </p>
+          <p>
+            Licensed under
+            <a href="https://www.mozilla.org/en-US/MPL/2.0/" target="_blank" class="link">MPLv2</a>
+            <span class="hidden sm:inline">|</span>
+            <span class="block sm:inline mt-1 sm:mt-0">
+              <a href="https://github.com/d-led/iiwsit" target="_blank" class="link"
+                >View on GitHub</a
+              >
+            </span>
+          </p>
+        </footer>
+      </div>
+    </div>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>
