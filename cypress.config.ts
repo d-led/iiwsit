@@ -1,6 +1,7 @@
 import { defineConfig } from 'cypress';
 import { spawn, ChildProcess } from 'child_process';
 import { join } from 'path';
+import { copyFileSync, mkdirSync } from 'fs';
 
 let serverProcess: ChildProcess | null = null;
 let serverPort: number | null = null;
@@ -10,13 +11,18 @@ function copyScreenshot(on: Cypress.PluginEvents) {
     // Only copy screenshots from screenshot.cy.ts to docs/screenshots
     if (details.path.includes('screenshot.cy.ts')) {
       const fileName = details.path.split('/').pop() || '';
-      const newPath = details.path.replace(
-        /cypress\/screenshots\/screenshot\.cy\.ts\/.+$/,
-        `docs/screenshots/${fileName}`
-      );
-      return { path: newPath };
+      const docsScreenshotsDir = join(process.cwd(), 'docs', 'screenshots');
+      const newPath = join(docsScreenshotsDir, fileName);
+
+      // Ensure the directory exists
+      mkdirSync(docsScreenshotsDir, { recursive: true });
+
+      // Copy the file to the new location
+      copyFileSync(details.path, newPath);
+
+      console.log(`📸 Copied ${fileName} to docs/screenshots/`);
     }
-    // Keep other screenshots in the default cypress/screenshots location
+    // Keep original path unchanged so Cypress's default behavior isn't affected
     return details;
   });
 }
