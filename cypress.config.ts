@@ -8,11 +8,16 @@ let serverPort: number | null = null;
 
 function copyScreenshot(on: Cypress.PluginEvents) {
   // Clean docs/screenshots before running screenshot tests
-  on('before:run', () => {
-    const docsScreenshotsDir = join(process.cwd(), 'docs', 'screenshots');
-    if (existsSync(docsScreenshotsDir)) {
-      rmSync(docsScreenshotsDir, { recursive: true, force: true });
-      console.log('🧹 Cleaned docs/screenshots directory');
+  on('before:run', (details) => {
+    // Only clean if we're running screenshot specs
+    const isScreenshotRun = details.specs.some(spec => spec.relative.includes('screenshot'));
+    
+    if (isScreenshotRun) {
+      const docsScreenshotsDir = join(process.cwd(), 'docs', 'screenshots');
+      if (existsSync(docsScreenshotsDir)) {
+        rmSync(docsScreenshotsDir, { recursive: true, force: true });
+        console.log('🧹 Cleaned docs/screenshots directory');
+      }
     }
   });
 
