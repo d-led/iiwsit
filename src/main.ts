@@ -1,29 +1,11 @@
 import './styles.css';
 import { ThroughputOptimizationCalculator } from './calculator';
-import type { CalculatorParams, CalculationResult } from './types';
+import type { CalculatorParams } from './types';
 import { Settings } from './settings';
-import { humanizeYears } from './utils/humanize';
+import { displayResults, displayVersion } from './ui';
 
 // Initialize the calculator
 const calculator = new ThroughputOptimizationCalculator();
-
-// Get DOM elements
-const form = document.getElementById('calculator-form') as HTMLFormElement;
-const resultsSection = document.getElementById('results-section') as HTMLDivElement;
-const resultsPlaceholder = document.getElementById('results-placeholder') as HTMLDivElement;
-const decisionBadge = document.getElementById('decision-badge') as HTMLDivElement;
-const confidence = document.getElementById('confidence') as HTMLDivElement;
-const metricsTableBody = document.getElementById('metrics-table-body') as HTMLTableSectionElement;
-const explanationContent = document.getElementById('explanation-content') as HTMLDivElement;
-
-// Floating bubble elements (mobile only)
-const floatingBubble = document.getElementById('floating-bubble') as HTMLDivElement;
-const bubbleButton = document.getElementById('bubble-button') as HTMLButtonElement;
-const bubbleDecision = document.getElementById('bubble-decision') as HTMLDivElement;
-const bubbleConfidence = document.getElementById('bubble-confidence') as HTMLDivElement;
-
-// Reset button
-const resetButton = document.getElementById('reset-button') as HTMLButtonElement;
 
 // Debounced calculation
 let calculateTimeout: number | null = null;
@@ -118,118 +100,36 @@ function resetToDefaults(): void {
 }
 
 /**
- * Update slider value displays
+ * Update slider value displays (called when loading settings)
  */
 function updateSliderDisplays(): void {
-  const currentFailureSlider = document.getElementById('current-failure') as HTMLInputElement;
-  const currentFailureValue = document.getElementById('current-failure-value') as HTMLSpanElement;
-  if (currentFailureValue) {
-    currentFailureValue.textContent = `${currentFailureSlider.value}%`;
-  }
+  updateCurrentFailureDisplay();
+  updateBugFailureDisplay();
+  updateOptimizationPreferenceDisplay();
+}
 
-  const bugFailureSlider = document.getElementById('bug-failure') as HTMLInputElement;
-  const bugFailureValue = document.getElementById('bug-failure-value') as HTMLSpanElement;
-  if (bugFailureValue) {
-    bugFailureValue.textContent = `${bugFailureSlider.value}%`;
-  }
-
-  const optimizationPreferenceSlider = document.getElementById('optimization-preference') as HTMLInputElement;
-  const optimizationPreferenceLabel = document.getElementById('optimization-preference-label') as HTMLSpanElement;
-  if (optimizationPreferenceLabel && optimizationPreferenceSlider) {
-    const value = parseFloat(optimizationPreferenceSlider.value);
-    if (value < 33) {
-      optimizationPreferenceLabel.textContent = '💰 Cost-focused';
-    } else if (value > 67) {
-      optimizationPreferenceLabel.textContent = '⚡ Throughput-focused';
-    } else {
-      optimizationPreferenceLabel.textContent = '⚖️ Balanced';
-    }
+function updateCurrentFailureDisplay(): void {
+  const slider = document.getElementById('current-failure') as HTMLInputElement;
+  const valueDisplay = document.getElementById('current-failure-value') as HTMLSpanElement;
+  if (slider && valueDisplay) {
+    valueDisplay.textContent = `${slider.value}%`;
   }
 }
 
-/**
- * Generate confidence explanation based on confidence percentage
- */
-function getConfidenceExplanation(confidence: number): string {
-  const riskPercent = (100 - confidence).toFixed(0);
-
-  if (confidence >= 80) {
-    return `Proceed with confidence - estimated ${riskPercent}% risk of negative outcome`;
-  } else if (confidence >= 65) {
-    return `Likely beneficial - estimated ${riskPercent}% risk of negative outcome`;
-  } else if (confidence >= 50) {
-    return `Mixed signals - estimated ${riskPercent}% risk of negative outcome`;
-  } else if (confidence >= 35) {
-    return `Risky proposition - estimated ${riskPercent}% risk of negative outcome`;
-  } else {
-    return `High risk - estimated ${riskPercent}% risk of negative outcome`;
+function updateBugFailureDisplay(): void {
+  const slider = document.getElementById('bug-failure') as HTMLInputElement;
+  const valueDisplay = document.getElementById('bug-failure-value') as HTMLSpanElement;
+  if (slider && valueDisplay) {
+    valueDisplay.textContent = `${slider.value}%`;
   }
 }
 
-/**
- * Generate dynamic confidence factors explanation based on optimization preference
- */
-function generateConfidenceFactorsText(costWeight: number, throughputWeight: number): string {
-  // Calculate the actual weights used in the scoring system
-  const financialBenefitWeight = Math.round(40 * costWeight);
-  const timeBenefitWeight = Math.round(40 * throughputWeight);
-  const financialROIWeight = Math.round(30 * costWeight);
-  const timeROIWeight = Math.round(30 * throughputWeight);
-  const financialBreakEvenWeight = Math.round(20 * costWeight);
-  const timeBreakEvenWeight = Math.round(20 * throughputWeight);
-  const failureImpactWeight = 15; // This stays constant
-  const speedGainWeight = 10; // This stays constant
-
-  const factors: string[] = [];
-
-  if (financialBenefitWeight > 0) {
-    factors.push(`Financial Benefit (${financialBenefitWeight}%)`);
-  }
-  if (timeBenefitWeight > 0) {
-    factors.push(`Time Benefit (${timeBenefitWeight}%)`);
-  }
-  if (financialROIWeight > 0) {
-    factors.push(`Financial ROI (${financialROIWeight}%)`);
-  }
-  if (timeROIWeight > 0) {
-    factors.push(`Time ROI (${timeROIWeight}%)`);
-  }
-  if (financialBreakEvenWeight > 0) {
-    factors.push(`Financial Break-Even (${financialBreakEvenWeight}%)`);
-  }
-  if (timeBreakEvenWeight > 0) {
-    factors.push(`Time Break-Even (${timeBreakEvenWeight}%)`);
-  }
-  if (failureImpactWeight > 0) {
-    factors.push(`Failure Rate Impact (${failureImpactWeight}%)`);
-  }
-  if (speedGainWeight > 0) {
-    factors.push(`Speed Gain (${speedGainWeight}%)`);
-  }
-
-  return `Confidence is based on ${factors.length} factors: ${factors.join(', ')}`;
-}
-
-/**
- * Generate context-aware confidence message based on optimization preference
- */
-function generateConfidenceMessage(confidenceValue: number, decision: string, optimizationPreference: number): string {
-  const confidencePercent = confidenceValue.toFixed(0);
-
-  // Determine the optimization focus context
-  let focusContext = '';
-  if (optimizationPreference < 33) {
-    focusContext = ' from a cost optimization perspective';
-  } else if (optimizationPreference > 67) {
-    focusContext = ' from a throughput optimization perspective';
-  } else {
-    focusContext = ' from a balanced perspective';
-  }
-
-  if (decision === 'proceed') {
-    return `${confidencePercent}% confident this optimization is beneficial${focusContext}`;
-  } else {
-    return `${confidencePercent}% confident this optimization is not worthwhile${focusContext}`;
+function updateOptimizationPreferenceDisplay(): void {
+  const slider = document.getElementById('optimization-preference') as HTMLInputElement;
+  const label = document.getElementById('optimization-preference-label') as HTMLSpanElement;
+  if (slider && label) {
+    const value = parseFloat(slider.value);
+    label.textContent = getOptimizationPreferenceLabel(value);
   }
 }
 
@@ -263,452 +163,151 @@ function calculate() {
   displayResults(result);
 }
 
-// Display app version in footer
-function displayVersion(): void {
-  const versionElement = document.getElementById('app-version');
-  if (versionElement) {
-    // These will be replaced at build time by Vite
-    const branch = typeof __GIT_BRANCH__ !== 'undefined' ? __GIT_BRANCH__ : 'dev';
-    const commit = typeof __GIT_COMMIT__ !== 'undefined' ? __GIT_COMMIT__ : 'local';
-    versionElement.textContent = `${branch}-${commit}`;
-  }
-}
-
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   // Display version
   displayVersion();
 
-  // Handle form submission (in case user presses Enter)
+  // Setup form submission handler
+  setupFormSubmissionHandler();
+
+  // Setup auto-calculation on form inputs
+  setupAutoCalculation();
+
+  // Setup slider display updates
+  setupSliderDisplays();
+
+  // Load initial settings and calculate
+  loadSettings();
+  calculate();
+
+  // Setup bubble navigation
+  setupBubbleNavigation();
+
+  // Setup reset button
+  setupResetButton();
+});
+
+// ============================================================================
+// Setup Functions (Literate Programming Pattern)
+// ============================================================================
+
+/**
+ * Setup form submission handler to prevent default and trigger calculation
+ */
+function setupFormSubmissionHandler(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement;
   if (form) {
     form.addEventListener('submit', (e: Event) => {
       e.preventDefault();
       calculate();
     });
   }
+}
 
-  // Add change listeners to all inputs for auto-calculation
-  if (form) {
-    const allInputs = form.querySelectorAll('input, select');
-    allInputs.forEach((input) => {
-      // For range sliders, only calculate on change (when dragging ends) to prevent flickering
-      if (input instanceof HTMLInputElement && input.type === 'range') {
-        input.addEventListener('change', triggerCalculation);
-      } else {
-        // For other inputs, calculate on input for immediate feedback
-        input.addEventListener('input', triggerCalculation);
-        input.addEventListener('change', triggerCalculation);
-      }
+/**
+ * Setup auto-calculation on all form inputs
+ * - Range sliders trigger on change (when drag ends) to prevent flickering
+ * - Other inputs trigger on input and change for immediate feedback
+ */
+function setupAutoCalculation(): void {
+  const form = document.getElementById('calculator-form') as HTMLFormElement;
+  if (!form) return;
+
+  const allInputs = form.querySelectorAll('input, select');
+  allInputs.forEach((input) => {
+    if (input instanceof HTMLInputElement && input.type === 'range') {
+      input.addEventListener('change', triggerCalculation);
+    } else {
+      input.addEventListener('input', triggerCalculation);
+      input.addEventListener('change', triggerCalculation);
+    }
+  });
+}
+
+/**
+ * Setup real-time slider value displays
+ * Updates display labels as user drags sliders
+ */
+function setupSliderDisplays(): void {
+  setupCurrentFailureSlider();
+  setupBugFailureSlider();
+  setupOptimizationPreferenceSlider();
+}
+
+/**
+ * Setup current failure rate slider display
+ */
+function setupCurrentFailureSlider(): void {
+  const slider = document.getElementById('current-failure') as HTMLInputElement;
+  const valueDisplay = document.getElementById('current-failure-value') as HTMLSpanElement;
+
+  if (slider && valueDisplay) {
+    slider.addEventListener('input', () => {
+      valueDisplay.textContent = `${slider.value}%`;
     });
   }
+}
 
-  // Update slider value displays in real-time (but don't trigger calculation until drag ends)
-  const currentFailureSlider = document.getElementById('current-failure') as HTMLInputElement;
-  const currentFailureValue = document.getElementById('current-failure-value') as HTMLSpanElement;
-  if (currentFailureSlider && currentFailureValue) {
-    currentFailureSlider.addEventListener('input', () => {
-      currentFailureValue.textContent = `${currentFailureSlider.value}%`;
+/**
+ * Setup bug failure rate slider display
+ */
+function setupBugFailureSlider(): void {
+  const slider = document.getElementById('bug-failure') as HTMLInputElement;
+  const valueDisplay = document.getElementById('bug-failure-value') as HTMLSpanElement;
+
+  if (slider && valueDisplay) {
+    slider.addEventListener('input', () => {
+      valueDisplay.textContent = `${slider.value}%`;
     });
   }
+}
 
-  const bugFailureSlider = document.getElementById('bug-failure') as HTMLInputElement;
-  const bugFailureValue = document.getElementById('bug-failure-value') as HTMLSpanElement;
-  if (bugFailureSlider && bugFailureValue) {
-    bugFailureSlider.addEventListener('input', () => {
-      bugFailureValue.textContent = `${bugFailureSlider.value}%`;
+/**
+ * Setup optimization preference slider display with contextual labels
+ */
+function setupOptimizationPreferenceSlider(): void {
+  const slider = document.getElementById('optimization-preference') as HTMLInputElement;
+  const label = document.getElementById('optimization-preference-label') as HTMLSpanElement;
+
+  if (slider && label) {
+    slider.addEventListener('input', () => {
+      const value = parseFloat(slider.value);
+      label.textContent = getOptimizationPreferenceLabel(value);
     });
   }
+}
 
-  const optimizationPreferenceSlider = document.getElementById('optimization-preference') as HTMLInputElement;
-  const optimizationPreferenceLabel = document.getElementById('optimization-preference-label') as HTMLSpanElement;
-  if (optimizationPreferenceSlider && optimizationPreferenceLabel) {
-    optimizationPreferenceSlider.addEventListener('input', () => {
-      const value = parseFloat(optimizationPreferenceSlider.value);
-      if (value < 33) {
-        optimizationPreferenceLabel.textContent = '💰 Cost-focused';
-      } else if (value > 67) {
-        optimizationPreferenceLabel.textContent = '⚡ Throughput-focused';
-      } else {
-        optimizationPreferenceLabel.textContent = '⚖️ Balanced';
-      }
-    });
-  }
+/**
+ * Get the label text for optimization preference value
+ */
+function getOptimizationPreferenceLabel(value: number): string {
+  if (value < 33) return '💰 Cost-focused';
+  if (value > 67) return '⚡ Throughput-focused';
+  return '⚖️ Balanced';
+}
 
-  // Load settings and perform initial calculation on page load
-  loadSettings();
-  calculate();
+/**
+ * Setup floating bubble navigation to scroll to results section
+ */
+function setupBubbleNavigation(): void {
+  const bubbleButton = document.getElementById('bubble-button') as HTMLButtonElement;
+  const resultsSection = document.getElementById('results-section') as HTMLDivElement;
 
-  // Handle floating bubble click (scroll to results)
   if (bubbleButton && resultsSection) {
     bubbleButton.addEventListener('click', () => {
       resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   }
+}
 
-  // Handle reset button click
+/**
+ * Setup reset button to restore default values
+ */
+function setupResetButton(): void {
+  const resetButton = document.getElementById('reset-button') as HTMLButtonElement;
+
   if (resetButton) {
     resetButton.addEventListener('click', resetToDefaults);
   }
-});
-
-function displayResults(result: CalculationResult): void {
-  // Show results section, hide placeholder
-  resultsSection.style.display = 'block';
-  resultsPlaceholder.style.display = 'none';
-
-  // Update floating bubble (mobile)
-  updateFloatingBubble(result.decision, result.confidence);
-
-  // Display decision badge
-  decisionBadge.textContent = result.decision;
-
-  // Reset to base classes and add decision-specific class
-  decisionBadge.className = 'text-4xl sm:text-5xl lg:text-6xl font-bold mb-3 sm:mb-4';
-
-  if (result.decision === 'YES') {
-    decisionBadge.classList.add('decision-yes');
-  } else if (result.decision === 'NO') {
-    decisionBadge.classList.add('decision-no');
-  } else {
-    decisionBadge.classList.add('decision-maybe');
-  }
-
-  const confidenceValue = parseFloat(result.confidence);
-  const decision = result.decision === 'YES' ? 'proceed' : 'not proceed';
-
-  // Get optimization preference for context
-  const optimizationPreference = parseFloat(
-    (document.getElementById('optimization-preference') as HTMLInputElement).value
-  );
-
-  // Generate context-aware confidence message
-  const confidenceMessage = generateConfidenceMessage(confidenceValue, decision, optimizationPreference);
-  confidence.textContent = `Confidence: ${result.confidence}% (${confidenceMessage})`;
-
-  // Add confidence explanation
-  const confidenceExplanation = getConfidenceExplanation(parseFloat(result.confidence));
-  const confidenceElement = document.getElementById('confidence-explanation');
-  if (confidenceElement) {
-    confidenceElement.textContent = confidenceExplanation;
-  }
-
-  // Add dynamic confidence factors explanation based on optimization preference
-  const costWeight = (100 - optimizationPreference) / 100;
-  const throughputWeight = optimizationPreference / 100;
-
-  const confidenceFactorsText = generateConfidenceFactorsText(costWeight, throughputWeight);
-  let confidenceFactorsElement = document.getElementById('confidence-factors');
-  if (!confidenceFactorsElement) {
-    confidenceFactorsElement = document.createElement('div');
-    confidenceFactorsElement.id = 'confidence-factors';
-    confidenceFactorsElement.className = 'text-xs text-base-content/50 italic mt-1';
-    if (confidenceElement && confidenceElement.parentNode) {
-      confidenceElement.parentNode.insertBefore(
-        confidenceFactorsElement,
-        confidenceElement.nextSibling
-      );
-    }
-  }
-  confidenceFactorsElement.textContent = confidenceFactorsText;
-
-  // Display metrics
-  const metrics = result.metrics;
-  const metricGroups = [
-    {
-      title: 'Compute Resources',
-      rows: [
-        { label: 'Request Rate', value: `${metrics.ratePerHour} req/hour` },
-        {
-          label: 'Total Requests (over time horizon)',
-          value: Number(metrics.totalRequestsOverHorizon).toLocaleString(),
-        },
-        {
-          label: 'Time Saved Per Request',
-          value: `${(parseFloat(metrics.timeSavedPerRequest) * 3600000).toFixed(2)} ms`,
-        },
-        { label: 'Total Time Saved', value: `${metrics.totalTimeSaved} hours`, positive: true },
-        { label: 'Implementation Cost', value: `${metrics.implementationCost} hours` },
-        { label: 'Maintenance Cost', value: `${metrics.maintenanceCost} hours` },
-        { label: 'Total Cost', value: `${metrics.totalCost} hours` },
-        {
-          label: 'Net Benefit',
-          value: `${metrics.netBenefit} hours`,
-          colored: true,
-          isPositive: parseFloat(metrics.netBenefit) > 0,
-        },
-        {
-          label: 'Return on Investment (ROI)',
-          value: `${metrics.roi}%`,
-          colored: true,
-          isPositive: parseFloat(metrics.roi) > 0,
-        },
-        { label: 'Break-Even Time (Time-based)', value: humanizeYears(metrics.breakEvenYears) },
-        {
-          label: 'Failure Rate Change',
-          value: `${parseFloat(metrics.failureRateChange) >= 0 ? '+' : ''}${metrics.failureRateChange}%`,
-          colored: true,
-          isPositive: parseFloat(metrics.failureRateChange) >= 0,
-        },
-      ],
-    },
-    {
-      title: 'Money',
-      rows: [
-        {
-          label: 'Compute Cost Savings',
-          value: `💰${metrics.computeCostSavings}`,
-          positive: true,
-        },
-        {
-          label: 'Implementation Cost (Money)',
-          value: `💰${metrics.implementationCostMoney}`,
-        },
-        {
-          label: 'Maintenance Cost (Money)',
-          value: `💰${metrics.maintenanceCostMoney}`,
-        },
-        {
-          label: 'Total Cost (Money)',
-          value: `💰${metrics.totalCostMoney}`,
-        },
-        {
-          label: 'Net Benefit (Money)',
-          value: `💰${metrics.netBenefitMoney}`,
-          colored: true,
-          isPositive: parseFloat(metrics.netBenefitMoney) > 0,
-        },
-        {
-          label: 'Return on Investment (Money)',
-          value: `${metrics.roiMoney}%`,
-          colored: true,
-          isPositive: parseFloat(metrics.roiMoney) > 0,
-        },
-        {
-          label: 'Break-Even Time (Money-based)',
-          value: humanizeYears(metrics.breakEvenYearsMoney),
-        },
-      ],
-    },
-  ];
-
-  metricsTableBody.innerHTML = metricGroups
-    .map((group) => {
-      const groupHeader = `
-        <tr>
-          <td colspan="2" class="font-bold text-lg pt-4 pb-2 border-b-2 border-base-300">${group.title}</td>
-        </tr>
-      `;
-
-      const groupRows = group.rows
-        .map((row) => {
-          let valueClass = '';
-          if (row.colored) {
-            valueClass = row.isPositive ? 'text-success font-bold' : 'text-error font-bold';
-          } else if (row.positive) {
-            valueClass = 'text-success font-bold';
-          }
-
-          return `
-          <tr>
-            <td class="font-semibold">${row.label}</td>
-            <td class="${valueClass}">${row.value}</td>
-          </tr>
-        `;
-        })
-        .join('');
-
-      return groupHeader + groupRows;
-    })
-    .join('');
-
-  // Display explanation
-  let explanationHTML = '';
-
-  // Decision box
-  if (result.decision === 'YES') {
-    explanationHTML += '<div class="alert alert-success mb-4">';
-    explanationHTML +=
-      '<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
-    explanationHTML +=
-      '<span><strong>Recommendation:</strong> Proceed with the optimization</span>';
-    explanationHTML += '</div>';
-  } else if (result.decision === 'MAYBE') {
-    explanationHTML += '<div class="alert alert-warning mb-4">';
-    explanationHTML +=
-      '<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>';
-    explanationHTML += '<span><strong>Recommendation:</strong> Proceed with caution</span>';
-    explanationHTML += '</div>';
-  } else {
-    explanationHTML += '<div class="alert alert-error mb-4">';
-    explanationHTML +=
-      '<svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
-    explanationHTML +=
-      '<span><strong>Recommendation:</strong> Do not proceed with this optimization</span>';
-    explanationHTML += '</div>';
-  }
-
-  // Decision factors
-  explanationHTML += '<h4 class="text-xl font-bold mb-3">Decision Factors:</h4>';
-  explanationHTML += '<ul class="list-disc list-inside space-y-2 mb-6">';
-  result.reasoning.forEach((reason, index) => {
-    if (index === 0) {
-      // First item is the explanation - style it differently
-      explanationHTML += `<li class="text-sm text-base-content/70 italic mb-2">${reason}</li>`;
-    } else {
-      explanationHTML += `<li>${reason}</li>`;
-    }
-  });
-  explanationHTML += '</ul>';
-
-  // Interpretation
-  explanationHTML += '<h4 class="text-xl font-bold mb-3">What This Means:</h4>';
-  explanationHTML += '<div class="space-y-3">';
-
-  const netBenefit = parseFloat(metrics.netBenefit);
-
-  if (netBenefit > 0) {
-    explanationHTML += `<p>Over your time horizon, you will save a net of <strong class="text-success">${metrics.netBenefit} hours</strong> `;
-    explanationHTML += `(${(netBenefit / 24).toFixed(1)} days) after accounting for implementation and maintenance costs.</p>`;
-  } else {
-    explanationHTML += `<p>The optimization will <strong class="text-error">cost more time than it saves</strong>. You'll lose `;
-    explanationHTML += `${Math.abs(netBenefit).toFixed(2)} hours (${(Math.abs(netBenefit) / 24).toFixed(1)} days) over your time horizon.</p>`;
-  }
-
-  const roiMoneyValue = parseFloat(metrics.roiMoney);
-  if (roiMoneyValue > 0) {
-    explanationHTML += `<p>For every 💰 invested, you'll get back <strong class="text-success">💰${(roiMoneyValue / 100 + 1).toFixed(2)}</strong> in total value (including your original investment).</p>`;
-  }
-
-  const breakEvenMoneyYears = parseFloat(metrics.breakEvenYearsMoney);
-  if (isFinite(breakEvenMoneyYears)) {
-    const timeHorizon = parseFloat(
-      (document.getElementById('time-horizon') as HTMLInputElement).value
-    );
-    const timeHorizonUnit = (document.getElementById('time-horizon-unit') as HTMLSelectElement)
-      .value;
-    const timeHorizonYears = timeHorizonUnit === 'year' ? timeHorizon : timeHorizon / 12;
-
-    if (breakEvenMoneyYears < timeHorizonYears) {
-      explanationHTML += `<p>The optimization will <strong class="text-success">pay for itself in ${metrics.breakEvenYearsMoney} years</strong>, `;
-      explanationHTML += `which is within your planned time horizon.</p>`;
-    } else {
-      explanationHTML += `<p>The optimization would take <strong class="text-warning">${metrics.breakEvenYearsMoney} years to pay for itself</strong>, `;
-      explanationHTML += `which exceeds your planned time horizon.</p>`;
-    }
-  }
-
-  explanationHTML += '</div>';
-
-  // Add formula section for the nerds
-  explanationHTML += '<div class="divider mt-8">🤓 For the Nerds: The Math Behind the Scenes</div>';
-  explanationHTML += '<div class="collapse collapse-arrow bg-base-200 mt-4">';
-  explanationHTML += '<input type="checkbox" />';
-  explanationHTML += '<div class="collapse-title text-lg font-medium">Click to view formulas</div>';
-  explanationHTML += '<div class="collapse-content">';
-  explanationHTML += '<div class="space-y-4 text-sm">';
-
-  // Time-based calculations
-  explanationHTML += '<h5 class="font-bold text-base mt-4">Time-Based Calculations:</h5>';
-  explanationHTML += '<div class="font-mono text-xs bg-base-300 p-3 rounded overflow-x-auto">';
-  explanationHTML += '<p><strong>Total Requests Over Time Horizon:</strong></p>';
-  explanationHTML += '<p>Total Requests = Rate (req/hr) × 24 (hr/day) × 365 (days/yr) × Time Horizon (years)</p>';
-  explanationHTML += '<p class="mt-2"><strong>Time Saved Per Request:</strong></p>';
-  explanationHTML += '<p>Time Saved = Duration (hours) × (Speed Gain % / 100)</p>';
-  explanationHTML += '<p class="mt-2"><strong>Total Time Saved:</strong></p>';
-  explanationHTML += '<p>Total Time Saved = Time Saved Per Request × Total Requests</p>';
-  explanationHTML += '<p class="mt-2"><strong>Total Cost (Time):</strong></p>';
-  explanationHTML += '<p>Total Cost = Implementation Time + (Maintenance Time Per Year × Time Horizon)</p>';
-  explanationHTML += '<p class="mt-2"><strong>Net Benefit (Time):</strong></p>';
-  explanationHTML += '<p>Net Benefit = Total Time Saved - Total Cost</p>';
-  explanationHTML += '<p class="mt-2"><strong>ROI (Time):</strong></p>';
-  explanationHTML += '<p>ROI = (Net Benefit / Total Cost) × 100%</p>';
-  explanationHTML += '<p class="mt-2"><strong>Break-Even (Time):</strong></p>';
-  explanationHTML += '<p>Break-Even Years = Total Cost / (Total Time Saved / Time Horizon)</p>';
-  explanationHTML += '</div>';
-
-  // Money-based calculations
-  explanationHTML += '<h5 class="font-bold text-base mt-4">Money-Based Calculations:</h5>';
-  explanationHTML += '<div class="font-mono text-xs bg-base-300 p-3 rounded overflow-x-auto">';
-  explanationHTML += '<p><strong>Compute Cost Savings:</strong></p>';
-  explanationHTML += '<p>Compute Cost Savings = Total Time Saved × Compute Cost Per Hour</p>';
-  explanationHTML += '<p class="mt-2"><strong>Implementation Cost (Money):</strong></p>';
-  explanationHTML += '<p>Implementation Cost = Implementation Time × Developer Hourly Rate</p>';
-  explanationHTML += '<p class="mt-2"><strong>Maintenance Cost (Money):</strong></p>';
-  explanationHTML += '<p>Maintenance Cost = (Maintenance Time Per Year × Time Horizon) × Developer Hourly Rate</p>';
-  explanationHTML += '<p class="mt-2"><strong>Total Cost (Money):</strong></p>';
-  explanationHTML += '<p>Total Cost = Implementation Cost + Maintenance Cost</p>';
-  explanationHTML += '<p class="mt-2"><strong>Net Benefit (Money):</strong></p>';
-  explanationHTML += '<p>Net Benefit = Compute Cost Savings - Total Cost</p>';
-  explanationHTML += '<p class="mt-2"><strong>ROI (Money):</strong></p>';
-  explanationHTML += '<p>ROI = (Net Benefit / Total Cost) × 100%</p>';
-  explanationHTML += '<p class="mt-2"><strong>Break-Even (Money):</strong></p>';
-  explanationHTML += '<p>Break-Even Years = Total Cost / (Compute Cost Savings / Time Horizon)</p>';
-  explanationHTML += '</div>';
-
-  // Failure rate calculations
-  explanationHTML += '<h5 class="font-bold text-base mt-4">Failure Rate Analysis:</h5>';
-  explanationHTML += '<div class="font-mono text-xs bg-base-300 p-3 rounded overflow-x-auto">';
-  explanationHTML += '<p><strong>Current Failed Requests:</strong></p>';
-  explanationHTML += '<p>Current Failed = Total Requests × (Current Failure Rate % / 100)</p>';
-  explanationHTML += '<p class="mt-2"><strong>Bug-Induced Failed Requests:</strong></p>';
-  explanationHTML += '<p>Bug Failed = Total Requests × (Bug Failure Rate % / 100)</p>';
-  explanationHTML += '<p class="mt-2"><strong>Net Failure Change:</strong></p>';
-  explanationHTML += '<p>Net Change = Current Failed - Bug Failed</p>';
-  explanationHTML += '<p class="mt-2"><strong>Failure Rate Change:</strong></p>';
-  explanationHTML += '<p>Rate Change % = Current Failure Rate % - Bug Failure Rate %</p>';
-  explanationHTML += '<p class="text-xs text-base-content/70 italic mt-2">(Positive = improvement, Negative = degradation)</p>';
-  explanationHTML += '</div>';
-
-  // Decision scoring
-  explanationHTML += '<h5 class="font-bold text-base mt-4">Decision Confidence Scoring:</h5>';
-  explanationHTML += '<div class="font-mono text-xs bg-base-300 p-3 rounded overflow-x-auto">';
-  explanationHTML += '<p><strong>Weight Distribution:</strong></p>';
-  explanationHTML += '<p>Cost Weight = (100 - Optimization Preference) / 100</p>';
-  explanationHTML += '<p>Throughput Weight = Optimization Preference / 100</p>';
-  explanationHTML += '<p class="mt-2"><strong>Score Components (max 100 points):</strong></p>';
-  explanationHTML += '<ul class="list-disc list-inside ml-2 mt-1">';
-  explanationHTML += '<li>Financial Benefit: up to 40 × Cost Weight points</li>';
-  explanationHTML += '<li>Time Benefit: up to 40 × Throughput Weight points</li>';
-  explanationHTML += '<li>Financial ROI: up to 30 × Cost Weight points</li>';
-  explanationHTML += '<li>Time ROI: up to 30 × Throughput Weight points</li>';
-  explanationHTML += '<li>Financial Break-Even: up to 20 × Cost Weight points</li>';
-  explanationHTML += '<li>Time Break-Even: up to 20 × Throughput Weight points</li>';
-  explanationHTML += '<li>Failure Rate Impact: up to 15 points</li>';
-  explanationHTML += '<li>Speed Gain Magnitude: up to 10 points</li>';
-  explanationHTML += '</ul>';
-  explanationHTML += '<p class="mt-2"><strong>Confidence Calculation:</strong></p>';
-  explanationHTML += '<p>Confidence % = (Total Score / Max Score) × 100</p>';
-  explanationHTML += '<p class="mt-2"><strong>Decision Thresholds:</strong></p>';
-  explanationHTML += '<p>≥ 60% = YES, 40-59% = MAYBE, < 40% = NO</p>';
-  explanationHTML += '</div>';
-
-  explanationHTML += '</div>'; // Close collapse-content
-  explanationHTML += '</div>'; // Close collapse
-
-  explanationContent.innerHTML = explanationHTML;
-}
-
-function updateFloatingBubble(decision: string, confidence: string): void {
-  // Update bubble content
-  bubbleDecision.textContent = decision;
-  bubbleConfidence.textContent = `${confidence}%`;
-
-  // Update bubble styling based on decision
-  bubbleButton.className = 'btn btn-circle shadow-2xl hover:scale-110 transition-transform';
-  bubbleButton.style.width = '70px';
-  bubbleButton.style.height = '70px';
-
-  if (decision === 'YES') {
-    bubbleButton.classList.add('btn-yes');
-  } else if (decision === 'NO') {
-    bubbleButton.classList.add('btn-no');
-  } else {
-    bubbleButton.classList.add('btn-maybe');
-  }
-
-  // Show bubble with animation
-  floatingBubble.style.display = 'block';
-  setTimeout(() => {
-    floatingBubble.classList.add('show');
-  }, 100);
 }
