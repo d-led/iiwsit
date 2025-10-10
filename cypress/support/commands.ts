@@ -167,7 +167,7 @@ Cypress.Commands.add('enterDeveloperRate', (rate: number) => {
 });
 
 Cypress.Commands.add('enterOptimizationPreference', (preference: number) => {
-  cy.get(SELECTORS.optimizationPreference).invoke('val', preference).trigger('input');
+  cy.get(SELECTORS.optimizationPreference).invoke('val', preference).trigger('input').trigger('change');
 });
 
 // Action Commands
