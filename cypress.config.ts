@@ -1,12 +1,21 @@
 import { defineConfig } from 'cypress';
 import { spawn, ChildProcess } from 'child_process';
 import { join } from 'path';
-import { copyFileSync, mkdirSync } from 'fs';
+import { copyFileSync, mkdirSync, rmSync, existsSync } from 'fs';
 
 let serverProcess: ChildProcess | null = null;
 let serverPort: number | null = null;
 
 function copyScreenshot(on: Cypress.PluginEvents) {
+  // Clean docs/screenshots before running screenshot tests
+  on('before:run', () => {
+    const docsScreenshotsDir = join(process.cwd(), 'docs', 'screenshots');
+    if (existsSync(docsScreenshotsDir)) {
+      rmSync(docsScreenshotsDir, { recursive: true, force: true });
+      console.log('🧹 Cleaned docs/screenshots directory');
+    }
+  });
+
   on('after:screenshot', (details) => {
     // Only copy screenshots from screenshot.cy.ts to docs/screenshots
     if (details.path.includes('screenshot.cy.ts')) {

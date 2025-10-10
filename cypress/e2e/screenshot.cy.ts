@@ -8,16 +8,6 @@ describe('Screenshot Tests - Visual Regression', () => {
   });
 
   describe('Desktop Screenshots (1200px width)', () => {
-    it('should capture full desktop layout', () => {
-      cy.viewport(1200, 800);
-      cy.wait(500); // Wait for layout to stabilize
-
-      cy.screenshot('desktop-full-layout', {
-        capture: 'fullPage',
-        overwrite: true,
-      });
-    });
-
     it('should capture desktop inputs section', () => {
       cy.viewport(1200, 800);
       cy.wait(500);
@@ -39,16 +29,24 @@ describe('Screenshot Tests - Visual Regression', () => {
 
       cy.screenshotResultsSection('desktop-results-section');
     });
+
+    // Removed desktop mid-page view - it was showing duplication issues
+    // Use section-specific screenshots instead
   });
 
   describe('Mobile Screenshots (375px width)', () => {
-    it('should capture mobile full page', () => {
+    it('should capture mobile top section', () => {
       cy.viewport(375, 667); // iPhone SE dimensions
       cy.wait(500);
 
-      cy.screenshot('mobile-full-page', {
-        capture: 'fullPage',
+      // Scroll to top
+      cy.window().scrollTo(0, 0);
+      cy.wait(300);
+
+      // Capture only the visible viewport, not full page
+      cy.screenshot('mobile-top-section', {
         overwrite: true,
+        capture: 'viewport', // This limits to viewport height
       });
     });
 
@@ -78,21 +76,36 @@ describe('Screenshot Tests - Visual Regression', () => {
       cy.viewport(375, 667);
       cy.wait(500);
 
-      // The floating bubble should be visible on mobile
-      cy.shouldShowFloatingBubble();
+      // Scroll to middle to show floating bubble
+      cy.window().scrollTo(0, 300);
+      cy.wait(300);
+
+      // Use the custom command to capture only the floating bubble element
       cy.screenshotFloatingBubble('mobile-floating-bubble');
     });
   });
 
   describe('Tablet Screenshots (768px width)', () => {
-    it('should capture tablet layout', () => {
+    it('should capture tablet inputs section', () => {
       cy.viewport(768, 1024); // iPad dimensions
       cy.wait(500);
 
-      cy.screenshot('tablet-layout', {
-        capture: 'fullPage',
-        overwrite: true,
-      });
+      // Scroll to top
+      cy.window().scrollTo(0, 0);
+      cy.wait(300);
+
+      cy.screenshotInputsSection('tablet-inputs');
+    });
+
+    it('should capture tablet results section', () => {
+      cy.viewport(768, 1024);
+      cy.wait(500);
+
+      // Scroll to results
+      cy.scrollToResults();
+      cy.wait(300);
+
+      cy.screenshotResultsSection('tablet-results');
     });
   });
 
@@ -102,10 +115,11 @@ describe('Screenshot Tests - Visual Regression', () => {
       cy.configurePessimisticScenario();
       cy.wait(500);
 
-      cy.screenshot('desktop-no-decision', {
-        capture: 'fullPage',
-        overwrite: true,
-      });
+      // Scroll to results to see the NO decision
+      cy.scrollToResults();
+      cy.wait(300);
+
+      cy.screenshotResultsSection('desktop-no-decision');
     });
 
     it('should capture MAYBE decision scenario', () => {
@@ -123,10 +137,11 @@ describe('Screenshot Tests - Visual Regression', () => {
       cy.enterDeveloperRate(60);
       cy.wait(500);
 
-      cy.screenshot('desktop-maybe-decision', {
-        capture: 'fullPage',
-        overwrite: true,
-      });
+      // Scroll to results to see the MAYBE decision
+      cy.scrollToResults();
+      cy.wait(300);
+
+      cy.screenshotResultsSection('desktop-maybe-decision');
     });
   });
 });

@@ -401,14 +401,20 @@ Cypress.Commands.add('shouldShowDecisionBadge', () => {
 });
 
 Cypress.Commands.add('screenshotInputsSection', (filename: string) => {
+  // Hide floating bubble to prevent it from appearing in inputs section screenshots
+  cy.get(SELECTORS.floatingBubble).invoke('css', 'display', 'none');
   cy.get(SELECTORS.inputsSection).screenshot(filename, {
     overwrite: true,
+    capture: 'viewport', // Limit to viewport height instead of full element
   });
 });
 
 Cypress.Commands.add('screenshotResultsSection', (filename: string) => {
+  // Hide floating bubble to prevent it from appearing in results section screenshots
+  cy.get(SELECTORS.floatingBubble).invoke('css', 'display', 'none');
   cy.get(SELECTORS.resultsSectionData).screenshot(filename, {
     overwrite: true,
+    capture: 'viewport', // Limit to viewport height instead of full element
   });
 });
 
