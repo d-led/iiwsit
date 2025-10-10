@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Is It Worth Speeding It (Throughput)? - XKCD Inspired</title>
+    <title>Is It Worth Speeding It (Throughput)?</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -154,11 +154,11 @@
                   </label>
                 </div>
 
-                <!-- Current Failure Rate -->
+                <!-- Current Request Failure Rate -->
                 <div class="form-control">
                   <label class="label">
                     <span class="label-text font-semibold text-sm sm:text-base"
-                      >Current Failure Rate:
+                      >Current Request Failure Rate:
                       <span id="current-failure-value" class="text-primary">5%</span></span
                     >
                   </label>
@@ -178,11 +178,11 @@
                   </label>
                 </div>
 
-                <!-- Bug-Induced Failure Rate -->
+                <!-- Expected Introduced Bug-Induced Request Failure Rate -->
                 <div class="form-control">
                   <label class="label">
                     <span class="label-text font-semibold text-sm sm:text-base"
-                      >Expected Introduced Bug-Induced Failure Rate:
+                      >Expected Introduced Bug-Induced Request Failure Rate:
                       <span id="bug-failure-value" class="text-primary">1%</span></span
                     >
                   </label>
@@ -197,7 +197,7 @@
                   />
                   <label class="label">
                     <span class="label-text-alt text-xs sm:text-sm"
-                      >Expected failures from newly introduced bugs</span
+                      >Percentage of requests expected to fail from newly introduced bugs</span
                     >
                   </label>
                 </div>
@@ -286,13 +286,13 @@
                   </div>
                   <label class="label">
                     <span class="label-text-alt text-xs sm:text-sm"
-                      >How long do you plan to use this system?</span
+                      >How long do you plan to use this system from the start of the optimizations?</span
                     >
                   </label>
                 </div>
 
                 <!-- Divider -->
-                <div class="divider text-sm font-semibold">Monetary Analysis (2025 Rates)</div>
+                <div class="divider text-sm font-semibold">Monetary Analysis</div>
 
                 <!-- Compute Cost Per Hour -->
                 <div class="form-control">

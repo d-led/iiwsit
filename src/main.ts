@@ -584,6 +584,93 @@ function displayResults(result: CalculationResult): void {
   }
 
   explanationHTML += '</div>';
+
+  // Add formula section for the nerds
+  explanationHTML += '<div class="divider mt-8">🤓 For the Nerds: The Math Behind the Scenes</div>';
+  explanationHTML += '<div class="collapse collapse-arrow bg-base-200 mt-4">';
+  explanationHTML += '<input type="checkbox" />';
+  explanationHTML += '<div class="collapse-title text-lg font-medium">Click to view formulas</div>';
+  explanationHTML += '<div class="collapse-content">';
+  explanationHTML += '<div class="space-y-4 text-sm">';
+
+  // Time-based calculations
+  explanationHTML += '<h5 class="font-bold text-base mt-4">Time-Based Calculations:</h5>';
+  explanationHTML += '<div class="font-mono text-xs bg-base-300 p-3 rounded overflow-x-auto">';
+  explanationHTML += '<p><strong>Total Requests Over Time Horizon:</strong></p>';
+  explanationHTML += '<p>Total Requests = Rate (req/hr) × 24 (hr/day) × 365 (days/yr) × Time Horizon (years)</p>';
+  explanationHTML += '<p class="mt-2"><strong>Time Saved Per Request:</strong></p>';
+  explanationHTML += '<p>Time Saved = Duration (hours) × (Speed Gain % / 100)</p>';
+  explanationHTML += '<p class="mt-2"><strong>Total Time Saved:</strong></p>';
+  explanationHTML += '<p>Total Time Saved = Time Saved Per Request × Total Requests</p>';
+  explanationHTML += '<p class="mt-2"><strong>Total Cost (Time):</strong></p>';
+  explanationHTML += '<p>Total Cost = Implementation Time + (Maintenance Time Per Year × Time Horizon)</p>';
+  explanationHTML += '<p class="mt-2"><strong>Net Benefit (Time):</strong></p>';
+  explanationHTML += '<p>Net Benefit = Total Time Saved - Total Cost</p>';
+  explanationHTML += '<p class="mt-2"><strong>ROI (Time):</strong></p>';
+  explanationHTML += '<p>ROI = (Net Benefit / Total Cost) × 100%</p>';
+  explanationHTML += '<p class="mt-2"><strong>Break-Even (Time):</strong></p>';
+  explanationHTML += '<p>Break-Even Years = Total Cost / (Total Time Saved / Time Horizon)</p>';
+  explanationHTML += '</div>';
+
+  // Money-based calculations
+  explanationHTML += '<h5 class="font-bold text-base mt-4">Money-Based Calculations:</h5>';
+  explanationHTML += '<div class="font-mono text-xs bg-base-300 p-3 rounded overflow-x-auto">';
+  explanationHTML += '<p><strong>Compute Cost Savings:</strong></p>';
+  explanationHTML += '<p>Compute Cost Savings = Total Time Saved × Compute Cost Per Hour</p>';
+  explanationHTML += '<p class="mt-2"><strong>Implementation Cost (Money):</strong></p>';
+  explanationHTML += '<p>Implementation Cost = Implementation Time × Developer Hourly Rate</p>';
+  explanationHTML += '<p class="mt-2"><strong>Maintenance Cost (Money):</strong></p>';
+  explanationHTML += '<p>Maintenance Cost = (Maintenance Time Per Year × Time Horizon) × Developer Hourly Rate</p>';
+  explanationHTML += '<p class="mt-2"><strong>Total Cost (Money):</strong></p>';
+  explanationHTML += '<p>Total Cost = Implementation Cost + Maintenance Cost</p>';
+  explanationHTML += '<p class="mt-2"><strong>Net Benefit (Money):</strong></p>';
+  explanationHTML += '<p>Net Benefit = Compute Cost Savings - Total Cost</p>';
+  explanationHTML += '<p class="mt-2"><strong>ROI (Money):</strong></p>';
+  explanationHTML += '<p>ROI = (Net Benefit / Total Cost) × 100%</p>';
+  explanationHTML += '<p class="mt-2"><strong>Break-Even (Money):</strong></p>';
+  explanationHTML += '<p>Break-Even Years = Total Cost / (Compute Cost Savings / Time Horizon)</p>';
+  explanationHTML += '</div>';
+
+  // Failure rate calculations
+  explanationHTML += '<h5 class="font-bold text-base mt-4">Failure Rate Analysis:</h5>';
+  explanationHTML += '<div class="font-mono text-xs bg-base-300 p-3 rounded overflow-x-auto">';
+  explanationHTML += '<p><strong>Current Failed Requests:</strong></p>';
+  explanationHTML += '<p>Current Failed = Total Requests × (Current Failure Rate % / 100)</p>';
+  explanationHTML += '<p class="mt-2"><strong>Bug-Induced Failed Requests:</strong></p>';
+  explanationHTML += '<p>Bug Failed = Total Requests × (Bug Failure Rate % / 100)</p>';
+  explanationHTML += '<p class="mt-2"><strong>Net Failure Change:</strong></p>';
+  explanationHTML += '<p>Net Change = Current Failed - Bug Failed</p>';
+  explanationHTML += '<p class="mt-2"><strong>Failure Rate Change:</strong></p>';
+  explanationHTML += '<p>Rate Change % = Current Failure Rate % - Bug Failure Rate %</p>';
+  explanationHTML += '<p class="text-xs text-base-content/70 italic mt-2">(Positive = improvement, Negative = degradation)</p>';
+  explanationHTML += '</div>';
+
+  // Decision scoring
+  explanationHTML += '<h5 class="font-bold text-base mt-4">Decision Confidence Scoring:</h5>';
+  explanationHTML += '<div class="font-mono text-xs bg-base-300 p-3 rounded overflow-x-auto">';
+  explanationHTML += '<p><strong>Weight Distribution:</strong></p>';
+  explanationHTML += '<p>Cost Weight = (100 - Optimization Preference) / 100</p>';
+  explanationHTML += '<p>Throughput Weight = Optimization Preference / 100</p>';
+  explanationHTML += '<p class="mt-2"><strong>Score Components (max 100 points):</strong></p>';
+  explanationHTML += '<ul class="list-disc list-inside ml-2 mt-1">';
+  explanationHTML += '<li>Financial Benefit: up to 40 × Cost Weight points</li>';
+  explanationHTML += '<li>Time Benefit: up to 40 × Throughput Weight points</li>';
+  explanationHTML += '<li>Financial ROI: up to 30 × Cost Weight points</li>';
+  explanationHTML += '<li>Time ROI: up to 30 × Throughput Weight points</li>';
+  explanationHTML += '<li>Financial Break-Even: up to 20 × Cost Weight points</li>';
+  explanationHTML += '<li>Time Break-Even: up to 20 × Throughput Weight points</li>';
+  explanationHTML += '<li>Failure Rate Impact: up to 15 points</li>';
+  explanationHTML += '<li>Speed Gain Magnitude: up to 10 points</li>';
+  explanationHTML += '</ul>';
+  explanationHTML += '<p class="mt-2"><strong>Confidence Calculation:</strong></p>';
+  explanationHTML += '<p>Confidence % = (Total Score / Max Score) × 100</p>';
+  explanationHTML += '<p class="mt-2"><strong>Decision Thresholds:</strong></p>';
+  explanationHTML += '<p>≥ 60% = YES, 40-59% = MAYBE, < 40% = NO</p>';
+  explanationHTML += '</div>';
+
+  explanationHTML += '</div>'; // Close collapse-content
+  explanationHTML += '</div>'; // Close collapse
+
   explanationContent.innerHTML = explanationHTML;
 }
 
