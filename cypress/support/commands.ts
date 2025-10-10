@@ -206,7 +206,7 @@ Cypress.Commands.add('configureOptimisticScenario', () => {
   cy.enterMaintenanceTime(1, 'hour-per-week');
   cy.enterImplementationTime(20);
   cy.enterTimeHorizon(5, 'year');
-  cy.enterComputeCost(1.00);
+  cy.enterComputeCost(1.0);
   cy.enterDeveloperRate(120);
 });
 
@@ -219,7 +219,7 @@ Cypress.Commands.add('configurePessimisticScenario', () => {
   cy.enterMaintenanceTime(8, 'hour-per-day');
   cy.enterImplementationTime(1000);
   cy.enterTimeHorizon(6, 'month');
-  cy.enterComputeCost(2.00);
+  cy.enterComputeCost(2.0);
   cy.enterDeveloperRate(150);
 });
 
@@ -236,13 +236,18 @@ Cypress.Commands.add('shouldDisplayResults', () => {
   // Verify all result elements exist and have content (don't rely on visibility due to layout)
   cy.get(SELECTORS.decisionBadge).should('exist').and('not.be.empty');
   cy.get(SELECTORS.confidence).should('exist').and('contain', 'Confidence');
-  cy.get(SELECTORS.metricsTableBody).should('exist').find('tr').should('have.length.greaterThan', 0);
+  cy.get(SELECTORS.metricsTableBody)
+    .should('exist')
+    .find('tr')
+    .should('have.length.greaterThan', 0);
   cy.get(SELECTORS.explanationContent).should('exist').and('not.be.empty');
 });
 
 Cypress.Commands.add('shouldShowPositiveROI', () => {
   cy.get(SELECTORS.metricsTableBody).contains('tr', 'Return on Investment').should('exist');
-  cy.get(SELECTORS.metricsTableBody).contains('tr', 'Return on Investment').should('not.contain', '-');
+  cy.get(SELECTORS.metricsTableBody)
+    .contains('tr', 'Return on Investment')
+    .should('not.contain', '-');
 });
 
 Cypress.Commands.add('shouldShowNegativeROI', () => {
@@ -281,7 +286,9 @@ Cypress.Commands.add('shouldHaveConfidenceBelow', (percentage: number) => {
 Cypress.Commands.add('shouldShowConfidenceExplanation', () => {
   cy.get('#confidence-explanation').should('exist').and('not.be.empty');
   // Should contain actionable language for busy users
-  cy.get('#confidence-explanation').invoke('text').should('match', /^(Go ahead|Likely good|Maybe|Risky|Don't do it)/);
+  cy.get('#confidence-explanation')
+    .invoke('text')
+    .should('match', /^(Go ahead|Likely good|Maybe|Risky|Don't do it)/);
 });
 
 Cypress.Commands.add('shouldDisplayMonetaryMetrics', () => {
@@ -306,7 +313,9 @@ Cypress.Commands.add('shouldHaveDefaultConfiguration', () => {
   cy.get(SELECTORS.implementationTime).should('have.value', '100');
   cy.get(SELECTORS.timeHorizon).should('have.value', '2');
   // Allow both '0.5' and '0.50' as valid default values
-  cy.get(SELECTORS.computeCost).invoke('val').should('match', /^0\.5(0)?$/);
+  cy.get(SELECTORS.computeCost)
+    .invoke('val')
+    .should('match', /^0\.5(0)?$/);
   cy.get(SELECTORS.developerRate).should('have.value', '75');
 });
 

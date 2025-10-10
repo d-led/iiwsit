@@ -146,4 +146,3 @@ describe('humanizeHours', () => {
     expect(result).toContain('0');
   });
 });
-

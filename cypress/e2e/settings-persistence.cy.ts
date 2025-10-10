@@ -19,16 +19,16 @@ describe('Settings Persistence - Local Storage', () => {
 
       // Then the values should be restored
       cy.shouldHaveConfiguredValues({
-        'rate': '1000',
-        'duration': '500',
+        rate: '1000',
+        duration: '500',
         'speed-gain': '30',
         'current-failure': '5',
         'bug-failure': '1',
-        'maintenance': '2',
+        maintenance: '2',
         'implementation-time': '40',
         'time-horizon': '1',
         'compute-cost': '0.75',
-        'developer-rate': '100'
+        'developer-rate': '100',
       });
     });
 
@@ -44,7 +44,7 @@ describe('Settings Persistence - Local Storage', () => {
       // Then the monetary values should be restored
       cy.shouldHaveConfiguredValues({
         'compute-cost': '1.25',
-        'developer-rate': '85'
+        'developer-rate': '85',
       });
     });
 
@@ -64,7 +64,7 @@ describe('Settings Persistence - Local Storage', () => {
         'rate-unit': 'minute',
         'duration-unit': 'second',
         'maintenance-unit': 'hour-per-day',
-        'time-horizon-unit': 'month'
+        'time-horizon-unit': 'month',
       });
     });
   });
@@ -77,8 +77,8 @@ describe('Settings Persistence - Local Storage', () => {
 
       // Verify custom values are set
       cy.shouldHaveConfiguredValues({
-        'rate': '500',
-        'speed-gain': '50'
+        rate: '500',
+        'speed-gain': '50',
       });
 
       // When the user clicks reset to defaults
@@ -143,10 +143,10 @@ describe('Settings Persistence - Local Storage', () => {
 
       // Then it should merge with defaults for missing fields
       cy.shouldHaveConfiguredValues({
-        'rate': '200',
+        rate: '200',
         'speed-gain': '25',
         'compute-cost': '0.50', // Default value
-        'developer-rate': '75' // Default value
+        'developer-rate': '75', // Default value
       });
     });
   });
@@ -172,18 +172,20 @@ describe('Settings Persistence - Local Storage', () => {
           implementationTime: 30,
           timeHorizon: 2,
           timeHorizonUnit: 'year',
-          computeCostPerHour: 1.00,
-          developerHourlyRate: 120
+          computeCostPerHour: 1.0,
+          developerHourlyRate: 120,
         };
         win.localStorage.setItem('iiwsit-calculator-settings', JSON.stringify(newSettings));
 
         // Simulate storage event (cross-tab sync)
-        win.dispatchEvent(new StorageEvent('storage', {
-          key: 'iiwsit-calculator-settings',
-          newValue: JSON.stringify(newSettings),
-          oldValue: null,
-          storageArea: win.localStorage
-        }));
+        win.dispatchEvent(
+          new StorageEvent('storage', {
+            key: 'iiwsit-calculator-settings',
+            newValue: JSON.stringify(newSettings),
+            oldValue: null,
+            storageArea: win.localStorage,
+          })
+        );
       });
 
       // Then the form should update (this would require additional implementation)

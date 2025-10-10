@@ -7,8 +7,17 @@ let serverPort: number | null = null;
 
 function copyScreenshot(on: Cypress.PluginEvents) {
   on('after:screenshot', (details) => {
-    const newPath = details.path.replace('/screenshots/', '/screenshots/latest/');
-    return { path: newPath };
+    // Only copy screenshots from screenshot.cy.ts to docs/screenshots
+    if (details.path.includes('screenshot.cy.ts')) {
+      const fileName = details.path.split('/').pop() || '';
+      const newPath = details.path.replace(
+        /cypress\/screenshots\/screenshot\.cy\.ts\/.+$/,
+        `docs/screenshots/${fileName}`
+      );
+      return { path: newPath };
+    }
+    // Keep other screenshots in the default cypress/screenshots location
+    return details;
   });
 }
 

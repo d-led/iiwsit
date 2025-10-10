@@ -89,7 +89,9 @@ export class ThroughputOptimizationCalculator {
     const reasons: string[] = [];
 
     // Add explanation of the scoring system
-    reasons.push('Scoring: Each factor contributes points based on its impact. Higher scores indicate stronger recommendations.');
+    reasons.push(
+      'Scoring: Each factor contributes points based on its impact. Higher scores indicate stronger recommendations.'
+    );
 
     // Factor 1: Monetary Net Benefit (40 points) - PRIMARY DRIVER
     maxScore += 40;
@@ -111,7 +113,9 @@ export class ThroughputOptimizationCalculator {
 
     if (roiMoney > 200) {
       roiScore += 30;
-      reasons.push(`Excellent monetary ROI of ${roiMoney.toFixed(0)}% (+30 points - exceptional return)`);
+      reasons.push(
+        `Excellent monetary ROI of ${roiMoney.toFixed(0)}% (+30 points - exceptional return)`
+      );
     } else if (roiMoney > 100) {
       roiScore += 25;
       reasons.push(`Great monetary ROI of ${roiMoney.toFixed(0)}% (+25 points - strong return)`);
@@ -134,10 +138,14 @@ export class ThroughputOptimizationCalculator {
     if (isFinite(breakEvenYearsMoney)) {
       if (breakEvenYearsMoney < timeHorizonYears * 0.25) {
         score += 20;
-        reasons.push(`Quick monetary break-even in ${breakEvenYearsMoney.toFixed(2)} years (+20 points - very fast payback)`);
+        reasons.push(
+          `Quick monetary break-even in ${breakEvenYearsMoney.toFixed(2)} years (+20 points - very fast payback)`
+        );
       } else if (breakEvenYearsMoney < timeHorizonYears * 0.5) {
         score += 15;
-        reasons.push(`Reasonable monetary break-even in ${breakEvenYearsMoney.toFixed(2)} years (+15 points - good payback)`);
+        reasons.push(
+          `Reasonable monetary break-even in ${breakEvenYearsMoney.toFixed(2)} years (+15 points - good payback)`
+        );
       } else if (breakEvenYearsMoney < timeHorizonYears) {
         score += 10;
         reasons.push(

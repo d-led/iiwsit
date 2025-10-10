@@ -18,7 +18,7 @@ describe('Throughput Optimization Decision Calculator', () => {
     implementationTime: 40,
     timeHorizon: 1,
     timeHorizonUnit: 'year',
-    computeCostPerHour: 0.50,
+    computeCostPerHour: 0.5,
     developerHourlyRate: 75,
   });
 

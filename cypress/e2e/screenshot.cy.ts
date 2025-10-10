@@ -3,7 +3,7 @@
 describe('Screenshot Tests - Visual Regression', () => {
   beforeEach(() => {
     cy.visitCalculator();
-    cy.fillHighTrafficScenario();
+    cy.configureHighTrafficScenario();
     cy.wait(500); // Wait for calculations to complete
   });
 
@@ -99,7 +99,7 @@ describe('Screenshot Tests - Visual Regression', () => {
   describe('Different Scenarios', () => {
     it('should capture NO decision scenario', () => {
       cy.viewport(1200, 800);
-      cy.fillPessimisticScenario();
+      cy.configurePessimisticScenario();
       cy.wait(500);
 
       cy.screenshot('desktop-no-decision', {

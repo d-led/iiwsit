@@ -1,7 +1,10 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @plugin "daisyui" {
-  themes: light --default, dark, cupcake;
+  themes:
+    light --default,
+    dark,
+    cupcake;
   logs: false;
 }
 
@@ -20,7 +23,8 @@
 
 /* Fix input height consistency on mobile */
 @media (max-width: 640px) {
-  .input, .select {
+  .input,
+  .select {
     min-height: 48px !important;
     height: 48px !important;
   }

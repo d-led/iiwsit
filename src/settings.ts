@@ -16,7 +16,7 @@ export const DEFAULT_CALCULATOR_PARAMS: CalculatorParams = {
   implementationTime: 100,
   timeHorizon: 2,
   timeHorizonUnit: 'year',
-  computeCostPerHour: 0.50,
+  computeCostPerHour: 0.5,
   developerHourlyRate: 75,
 };
 

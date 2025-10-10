@@ -40,15 +40,24 @@ function loadSettings(): void {
   (document.getElementById('duration') as HTMLInputElement).value = settings.duration.toString();
   (document.getElementById('duration-unit') as HTMLSelectElement).value = settings.durationUnit;
   (document.getElementById('speed-gain') as HTMLInputElement).value = settings.speedGain.toString();
-  (document.getElementById('current-failure') as HTMLInputElement).value = settings.currentFailure.toString();
-  (document.getElementById('bug-failure') as HTMLInputElement).value = settings.bugFailure.toString();
-  (document.getElementById('maintenance') as HTMLInputElement).value = settings.maintenance.toString();
-  (document.getElementById('maintenance-unit') as HTMLSelectElement).value = settings.maintenanceUnit;
-  (document.getElementById('implementation-time') as HTMLInputElement).value = settings.implementationTime.toString();
-  (document.getElementById('time-horizon') as HTMLInputElement).value = settings.timeHorizon.toString();
-  (document.getElementById('time-horizon-unit') as HTMLSelectElement).value = settings.timeHorizonUnit;
-  (document.getElementById('compute-cost') as HTMLInputElement).value = settings.computeCostPerHour.toString();
-  (document.getElementById('developer-rate') as HTMLInputElement).value = settings.developerHourlyRate.toString();
+  (document.getElementById('current-failure') as HTMLInputElement).value =
+    settings.currentFailure.toString();
+  (document.getElementById('bug-failure') as HTMLInputElement).value =
+    settings.bugFailure.toString();
+  (document.getElementById('maintenance') as HTMLInputElement).value =
+    settings.maintenance.toString();
+  (document.getElementById('maintenance-unit') as HTMLSelectElement).value =
+    settings.maintenanceUnit;
+  (document.getElementById('implementation-time') as HTMLInputElement).value =
+    settings.implementationTime.toString();
+  (document.getElementById('time-horizon') as HTMLInputElement).value =
+    settings.timeHorizon.toString();
+  (document.getElementById('time-horizon-unit') as HTMLSelectElement).value =
+    settings.timeHorizonUnit;
+  (document.getElementById('compute-cost') as HTMLInputElement).value =
+    settings.computeCostPerHour.toString();
+  (document.getElementById('developer-rate') as HTMLInputElement).value =
+    settings.developerHourlyRate.toString();
 
   // Update slider value displays
   updateSliderDisplays();
@@ -72,15 +81,25 @@ function gatherFormParams(): CalculatorParams {
     duration: parseFloat((document.getElementById('duration') as HTMLInputElement).value),
     durationUnit: (document.getElementById('duration-unit') as HTMLSelectElement).value as any,
     speedGain: parseFloat((document.getElementById('speed-gain') as HTMLInputElement).value),
-    currentFailure: parseFloat((document.getElementById('current-failure') as HTMLInputElement).value),
+    currentFailure: parseFloat(
+      (document.getElementById('current-failure') as HTMLInputElement).value
+    ),
     bugFailure: parseFloat((document.getElementById('bug-failure') as HTMLInputElement).value),
     maintenance: parseFloat((document.getElementById('maintenance') as HTMLInputElement).value),
-    maintenanceUnit: (document.getElementById('maintenance-unit') as HTMLSelectElement).value as any,
-    implementationTime: parseFloat((document.getElementById('implementation-time') as HTMLInputElement).value),
+    maintenanceUnit: (document.getElementById('maintenance-unit') as HTMLSelectElement)
+      .value as any,
+    implementationTime: parseFloat(
+      (document.getElementById('implementation-time') as HTMLInputElement).value
+    ),
     timeHorizon: parseFloat((document.getElementById('time-horizon') as HTMLInputElement).value),
-    timeHorizonUnit: (document.getElementById('time-horizon-unit') as HTMLSelectElement).value as any,
-    computeCostPerHour: parseFloat((document.getElementById('compute-cost') as HTMLInputElement).value),
-    developerHourlyRate: parseFloat((document.getElementById('developer-rate') as HTMLInputElement).value),
+    timeHorizonUnit: (document.getElementById('time-horizon-unit') as HTMLSelectElement)
+      .value as any,
+    computeCostPerHour: parseFloat(
+      (document.getElementById('compute-cost') as HTMLInputElement).value
+    ),
+    developerHourlyRate: parseFloat(
+      (document.getElementById('developer-rate') as HTMLInputElement).value
+    ),
   };
 }
 
@@ -253,7 +272,10 @@ function displayResults(result: CalculationResult): void {
     confidenceFactorsElement.id = 'confidence-factors';
     confidenceFactorsElement.className = 'text-xs text-base-content/50 italic mt-1';
     if (confidenceElement && confidenceElement.parentNode) {
-      confidenceElement.parentNode.insertBefore(confidenceFactorsElement, confidenceElement.nextSibling);
+      confidenceElement.parentNode.insertBefore(
+        confidenceFactorsElement,
+        confidenceElement.nextSibling
+      );
     }
   }
   confidenceFactorsElement.textContent = confidenceFactorsText;
@@ -394,18 +416,18 @@ function displayResults(result: CalculationResult): void {
     explanationHTML += '</div>';
   }
 
-          // Decision factors
-          explanationHTML += '<h4 class="text-xl font-bold mb-3">Decision Factors:</h4>';
-          explanationHTML += '<ul class="list-disc list-inside space-y-2 mb-6">';
-          result.reasoning.forEach((reason, index) => {
-            if (index === 0) {
-              // First item is the explanation - style it differently
-              explanationHTML += `<li class="text-sm text-base-content/70 italic mb-2">${reason}</li>`;
-            } else {
-              explanationHTML += `<li>${reason}</li>`;
-            }
-          });
-          explanationHTML += '</ul>';
+  // Decision factors
+  explanationHTML += '<h4 class="text-xl font-bold mb-3">Decision Factors:</h4>';
+  explanationHTML += '<ul class="list-disc list-inside space-y-2 mb-6">';
+  result.reasoning.forEach((reason, index) => {
+    if (index === 0) {
+      // First item is the explanation - style it differently
+      explanationHTML += `<li class="text-sm text-base-content/70 italic mb-2">${reason}</li>`;
+    } else {
+      explanationHTML += `<li>${reason}</li>`;
+    }
+  });
+  explanationHTML += '</ul>';
 
   // Interpretation
   explanationHTML += '<h4 class="text-xl font-bold mb-3">What This Means:</h4>';

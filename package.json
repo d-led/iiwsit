@@ -16,6 +16,7 @@
     "cypress": "cypress open --e2e --browser chrome",
     "cypress:headless": "cypress run",
     "e2e": "cypress run --e2e --browser chrome --spec 'cypress/e2e/!(screenshot).cy.ts'",
+    "screenshots": "cypress run --e2e --browser chrome --spec 'cypress/e2e/*screenshot*.cy.ts'",
     "test:e2e": "npm run build && npm run e2e",
     "prettier": "prettier --write \"**/*.{js,ts,jsx,tsx,json,css,html,md}\"",
     "prettier:check": "prettier --check \"**/*.{js,ts,jsx,tsx,json,css,html,md}\"",
