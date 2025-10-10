@@ -24,9 +24,10 @@ This tool helps you make data-driven decisions by calculating:
 - 📊 Comprehensive calculation breakdown with detailed metrics
 - 🎯 Clear YES/NO/MAYBE recommendations with confidence scores
 - 📈 Human-readable explanations of the decision factors
-- 🧪 Thoroughly tested with **Vitest**
+- 🧪 Tested with **Vitest** and **Cypress**
 - 📱 Fully responsive design for mobile and desktop
 - ⚡ Fast and lightweight, built with **Vite**
+- 🏷️ Version tracking (displays git branch and commit SHA in footer)
 
 ## 🚀 Quick Start
 

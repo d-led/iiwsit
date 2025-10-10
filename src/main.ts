@@ -263,8 +263,22 @@ function calculate() {
   displayResults(result);
 }
 
+// Display app version in footer
+function displayVersion(): void {
+  const versionElement = document.getElementById('app-version');
+  if (versionElement) {
+    // These will be replaced at build time by Vite
+    const branch = typeof __GIT_BRANCH__ !== 'undefined' ? __GIT_BRANCH__ : 'dev';
+    const commit = typeof __GIT_COMMIT__ !== 'undefined' ? __GIT_COMMIT__ : 'local';
+    versionElement.textContent = `${branch}-${commit}`;
+  }
+}
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+  // Display version
+  displayVersion();
+
   // Handle form submission (in case user presses Enter)
   if (form) {
     form.addEventListener('submit', (e: Event) => {

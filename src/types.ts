@@ -75,3 +75,9 @@ export interface CalculationResult {
   metrics: CalculationMetrics;
   reasoning: string[];
 }
+
+// Global variables injected by Vite at build time
+declare global {
+  const __GIT_BRANCH__: string;
+  const __GIT_COMMIT__: string;
+}
