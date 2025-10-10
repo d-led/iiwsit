@@ -82,7 +82,14 @@ export class ThroughputOptimizationCalculator {
     },
     optimizationPreference: number
   ): DecisionResult {
-    const { timeHorizonYears, failureRateChange, speedGainFraction, netBenefit, roi, breakEvenYears } = timeFactors;
+    const {
+      timeHorizonYears,
+      failureRateChange,
+      speedGainFraction,
+      netBenefit,
+      roi,
+      breakEvenYears,
+    } = timeFactors;
 
     const { netBenefitMoney, roiMoney, breakEvenYearsMoney } = moneyFactors;
 
@@ -97,8 +104,11 @@ export class ThroughputOptimizationCalculator {
 
     // Add explanation of the scoring system
     const prefDescription =
-      optimizationPreference < 33 ? 'Cost-optimized' :
-      optimizationPreference > 67 ? 'Throughput-optimized' : 'Balanced';
+      optimizationPreference < 33
+        ? 'Cost-optimized'
+        : optimizationPreference > 67
+          ? 'Throughput-optimized'
+          : 'Balanced';
     reasons.push(
       `Scoring (${prefDescription} mode): Each factor contributes points based on its impact. Higher scores indicate stronger recommendations.`
     );
@@ -107,7 +117,10 @@ export class ThroughputOptimizationCalculator {
     const moneyBenefitWeight = 40 * costWeight;
     maxScore += moneyBenefitWeight;
     if (netBenefitMoney > 0) {
-      const benefitScore = Math.min(moneyBenefitWeight, (netBenefitMoney / moneyFactors.totalCostMoney) * 15 * costWeight);
+      const benefitScore = Math.min(
+        moneyBenefitWeight,
+        (netBenefitMoney / moneyFactors.totalCostMoney) * 15 * costWeight
+      );
       score += benefitScore;
       reasons.push(
         `Positive financial benefit of 💰${netBenefitMoney.toFixed(2)} (+${benefitScore.toFixed(1)} points, weight: ${(costWeight * 100).toFixed(0)}%)`
@@ -122,7 +135,10 @@ export class ThroughputOptimizationCalculator {
     const timeBenefitWeight = 40 * throughputWeight;
     maxScore += timeBenefitWeight;
     if (netBenefit > 0) {
-      const benefitScore = Math.min(timeBenefitWeight, (netBenefit / timeFactors.totalCost) * 15 * throughputWeight);
+      const benefitScore = Math.min(
+        timeBenefitWeight,
+        (netBenefit / timeFactors.totalCost) * 15 * throughputWeight
+      );
       score += benefitScore;
       reasons.push(
         `Positive time benefit of ${netBenefit.toFixed(2)} hours (+${benefitScore.toFixed(1)} points, weight: ${(throughputWeight * 100).toFixed(0)}%)`
@@ -145,16 +161,24 @@ export class ThroughputOptimizationCalculator {
       );
     } else if (roiMoney > 100) {
       roiMoneyScore = moneyRoiWeight * 0.83;
-      reasons.push(`Great monetary ROI of ${roiMoney.toFixed(0)}% (+${roiMoneyScore.toFixed(1)} points - strong return)`);
+      reasons.push(
+        `Great monetary ROI of ${roiMoney.toFixed(0)}% (+${roiMoneyScore.toFixed(1)} points - strong return)`
+      );
     } else if (roiMoney > 50) {
       roiMoneyScore = moneyRoiWeight * 0.67;
-      reasons.push(`Good monetary ROI of ${roiMoney.toFixed(0)}% (+${roiMoneyScore.toFixed(1)} points - solid return)`);
+      reasons.push(
+        `Good monetary ROI of ${roiMoney.toFixed(0)}% (+${roiMoneyScore.toFixed(1)} points - solid return)`
+      );
     } else if (roiMoney > 20) {
       roiMoneyScore = moneyRoiWeight * 0.5;
-      reasons.push(`Moderate monetary ROI of ${roiMoney.toFixed(0)}% (+${roiMoneyScore.toFixed(1)} points - decent return)`);
+      reasons.push(
+        `Moderate monetary ROI of ${roiMoney.toFixed(0)}% (+${roiMoneyScore.toFixed(1)} points - decent return)`
+      );
     } else if (roiMoney > 0) {
       roiMoneyScore = moneyRoiWeight * 0.33;
-      reasons.push(`Low monetary ROI of ${roiMoney.toFixed(0)}% (+${roiMoneyScore.toFixed(1)} points - minimal return)`);
+      reasons.push(
+        `Low monetary ROI of ${roiMoney.toFixed(0)}% (+${roiMoneyScore.toFixed(1)} points - minimal return)`
+      );
     } else {
       reasons.push(`Negative monetary ROI of ${roiMoney.toFixed(0)}% (0 points - no return)`);
     }
@@ -172,16 +196,24 @@ export class ThroughputOptimizationCalculator {
       );
     } else if (roi > 100) {
       roiTimeScore = timeRoiWeight * 0.83;
-      reasons.push(`Great time ROI of ${roi.toFixed(0)}% (+${roiTimeScore.toFixed(1)} points - strong return)`);
+      reasons.push(
+        `Great time ROI of ${roi.toFixed(0)}% (+${roiTimeScore.toFixed(1)} points - strong return)`
+      );
     } else if (roi > 50) {
       roiTimeScore = timeRoiWeight * 0.67;
-      reasons.push(`Good time ROI of ${roi.toFixed(0)}% (+${roiTimeScore.toFixed(1)} points - solid return)`);
+      reasons.push(
+        `Good time ROI of ${roi.toFixed(0)}% (+${roiTimeScore.toFixed(1)} points - solid return)`
+      );
     } else if (roi > 20) {
       roiTimeScore = timeRoiWeight * 0.5;
-      reasons.push(`Moderate time ROI of ${roi.toFixed(0)}% (+${roiTimeScore.toFixed(1)} points - decent return)`);
+      reasons.push(
+        `Moderate time ROI of ${roi.toFixed(0)}% (+${roiTimeScore.toFixed(1)} points - decent return)`
+      );
     } else if (roi > 0) {
       roiTimeScore = timeRoiWeight * 0.33;
-      reasons.push(`Low time ROI of ${roi.toFixed(0)}% (+${roiTimeScore.toFixed(1)} points - minimal return)`);
+      reasons.push(
+        `Low time ROI of ${roi.toFixed(0)}% (+${roiTimeScore.toFixed(1)} points - minimal return)`
+      );
     } else {
       reasons.push(`Negative time ROI of ${roi.toFixed(0)}% (0 points - no return)`);
     }

@@ -63,7 +63,9 @@ export async function typesetMath(element?: HTMLElement): Promise<void> {
               // Don't scale below 1em (original size)
               const newSize = Math.max(1, 2 * scale);
               container.style.fontSize = `${newSize}em`;
-              console.log(`Scaled formula ${i} from 2em to ${newSize.toFixed(2)}em (overflow: ${containerWidth}px > ${parentWidth}px)`);
+              console.log(
+                `Scaled formula ${i} from 2em to ${newSize.toFixed(2)}em (overflow: ${containerWidth}px > ${parentWidth}px)`
+              );
             }
           }
         });
@@ -82,7 +84,6 @@ export async function typesetMath(element?: HTMLElement): Promise<void> {
       const processedElements = targetElement.querySelectorAll('.katex');
       console.log(`Found ${processedElements.length} processed KaTeX elements`);
     }, 100);
-
   } catch (err) {
     console.error('KaTeX rendering failed:', err);
   }

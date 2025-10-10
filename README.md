@@ -254,7 +254,6 @@ The MPLv2 is a simple copyleft license that allows you to:
 
 Just ensure that modifications to MPL-licensed files remain under MPL.
 
-
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fd-led%2Fiiwsit.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fd-led%2Fiiwsit?ref=badge_large)
 
 ## 🙏 Acknowledgments

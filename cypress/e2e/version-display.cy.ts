@@ -11,7 +11,9 @@ describe('Version Display', () => {
     cy.get('#app-version').should('not.be.empty');
 
     // In dev mode it should show "dev-local", in build mode it should show "branch-commit"
-    cy.get('#app-version').invoke('text').should('match', /^[\w-]+$/);
+    cy.get('#app-version')
+      .invoke('text')
+      .should('match', /^[\w-]+$/);
   });
 
   it('version should be visible in the footer', () => {
@@ -34,4 +36,3 @@ describe('Version Display', () => {
       });
   });
 });
-

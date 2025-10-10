@@ -10,7 +10,7 @@ function copyScreenshot(on: Cypress.PluginEvents) {
   // Clean docs/screenshots before running screenshot tests
   on('before:run', (details) => {
     // Only clean if we're running screenshot specs
-    const isScreenshotRun = details.specs.some(spec => spec.relative.includes('screenshot'));
+    const isScreenshotRun = details.specs.some((spec) => spec.relative.includes('screenshot'));
 
     if (isScreenshotRun) {
       const docsScreenshotsDir = join(process.cwd(), 'docs', 'screenshots');

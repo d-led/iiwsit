@@ -167,7 +167,10 @@ Cypress.Commands.add('enterDeveloperRate', (rate: number) => {
 });
 
 Cypress.Commands.add('enterOptimizationPreference', (preference: number) => {
-  cy.get(SELECTORS.optimizationPreference).invoke('val', preference).trigger('input').trigger('change');
+  cy.get(SELECTORS.optimizationPreference)
+    .invoke('val', preference)
+    .trigger('input')
+    .trigger('change');
 });
 
 // Action Commands
@@ -294,7 +297,10 @@ Cypress.Commands.add('shouldShowConfidenceExplanation', () => {
   // Should contain actionable language for busy users
   cy.get('#confidence-explanation')
     .invoke('text')
-    .should('match', /^(Proceed with confidence|Likely beneficial|Mixed signals|Risky proposition|High risk)/);
+    .should(
+      'match',
+      /^(Proceed with confidence|Likely beneficial|Mixed signals|Risky proposition|High risk)/
+    );
 });
 
 Cypress.Commands.add('shouldDisplayMonetaryMetrics', () => {
@@ -426,7 +432,7 @@ Cypress.Commands.add('screenshotInputsSection', (filename: string) => {
         x: 0,
         y: 0,
         height: viewportHeight,
-        width: viewportWidth
+        width: viewportWidth,
       },
     });
   });
@@ -451,7 +457,7 @@ Cypress.Commands.add('screenshotResultsSection', (filename: string) => {
         x: 0,
         y: 0,
         height: viewportHeight,
-        width: viewportWidth
+        width: viewportWidth,
       },
     });
   });

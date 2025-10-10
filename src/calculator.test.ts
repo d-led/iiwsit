@@ -361,7 +361,7 @@ describe('Throughput Optimization Decision Calculator', () => {
       const costOptimizedResult = calculator.calculate(params);
 
       expect(costOptimizedResult.reasoning[0]).toContain('Cost-optimized');
-      expect(costOptimizedResult.reasoning.some(r => r.includes('weight: 100%'))).toBe(true);
+      expect(costOptimizedResult.reasoning.some((r) => r.includes('weight: 100%'))).toBe(true);
     });
 
     it('should weight throughput factors more heavily when preference is set to throughput optimization', () => {
@@ -376,7 +376,9 @@ describe('Throughput Optimization Decision Calculator', () => {
       const throughputOptimizedResult = calculator.calculate(params);
 
       expect(throughputOptimizedResult.reasoning[0]).toContain('Throughput-optimized');
-      expect(throughputOptimizedResult.reasoning.some(r => r.includes('weight: 100%'))).toBe(true);
+      expect(throughputOptimizedResult.reasoning.some((r) => r.includes('weight: 100%'))).toBe(
+        true
+      );
     });
 
     it('should use balanced weights when preference is set to 50', () => {
@@ -389,7 +391,7 @@ describe('Throughput Optimization Decision Calculator', () => {
       const balancedResult = calculator.calculate(params);
 
       expect(balancedResult.reasoning[0]).toContain('Balanced');
-      expect(balancedResult.reasoning.some(r => r.includes('weight: 50%'))).toBe(true);
+      expect(balancedResult.reasoning.some((r) => r.includes('weight: 50%'))).toBe(true);
     });
 
     it('should produce different decisions based on optimization preference for borderline cases', () => {
@@ -452,12 +454,10 @@ describe('Throughput Optimization Decision Calculator', () => {
       const costResult = calculator.calculate(params);
 
       // Should mention both financial and time benefits
-      const hasFinancial = costResult.reasoning.some(r =>
-        r.toLowerCase().includes('financial') || r.toLowerCase().includes('monetary')
+      const hasFinancial = costResult.reasoning.some(
+        (r) => r.toLowerCase().includes('financial') || r.toLowerCase().includes('monetary')
       );
-      const hasTime = costResult.reasoning.some(r =>
-        r.toLowerCase().includes('time')
-      );
+      const hasTime = costResult.reasoning.some((r) => r.toLowerCase().includes('time'));
 
       expect(hasFinancial).toBe(true);
       expect(hasTime).toBe(true);

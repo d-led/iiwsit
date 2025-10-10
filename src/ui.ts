@@ -163,7 +163,11 @@ function displayMainConfidenceMessage(
   optimizationPreference: number
 ): void {
   const confidenceValue = parseFloat(confidence);
-  const confidenceMessage = generateConfidenceMessage(confidenceValue, decision, optimizationPreference);
+  const confidenceMessage = generateConfidenceMessage(
+    confidenceValue,
+    decision,
+    optimizationPreference
+  );
   confidenceElement.textContent = `Confidence: ${confidence}% (${confidenceMessage})`;
 }
 
@@ -218,19 +222,14 @@ function displayMetricsTable(result: CalculationResult): void {
   const metricsTableBody = document.getElementById('metrics-table-body') as HTMLTableSectionElement;
   const metricGroups = buildMetricGroups(result.metrics);
 
-  metricsTableBody.innerHTML = metricGroups
-    .map((group) => renderMetricGroup(group))
-    .join('');
+  metricsTableBody.innerHTML = metricGroups.map((group) => renderMetricGroup(group)).join('');
 }
 
 /**
  * Build metric groups from calculation metrics
  */
 function buildMetricGroups(metrics: CalculationResult['metrics']) {
-  return [
-    buildComputeResourcesGroup(metrics),
-    buildMoneyMetricsGroup(metrics),
-  ];
+  return [buildComputeResourcesGroup(metrics), buildMoneyMetricsGroup(metrics)];
 }
 
 /**
@@ -330,9 +329,7 @@ function renderMetricGroup(group: { title: string; rows: any[] }): string {
     </tr>
   `;
 
-  const groupRows = group.rows
-    .map((row) => renderMetricRow(row))
-    .join('');
+  const groupRows = group.rows.map((row) => renderMetricRow(row)).join('');
 
   return groupHeader + groupRows;
 }
@@ -441,11 +438,15 @@ function buildNetBenefitInterpretation(netBenefitStr: string): string {
   const netBenefit = parseFloat(netBenefitStr);
 
   if (netBenefit > 0) {
-    return `<p>Over your time horizon, you will save a net of <strong class="text-success">${netBenefitStr} hours</strong> ` +
-           `(${(netBenefit / 24).toFixed(1)} days) after accounting for implementation and maintenance costs.</p>`;
+    return (
+      `<p>Over your time horizon, you will save a net of <strong class="text-success">${netBenefitStr} hours</strong> ` +
+      `(${(netBenefit / 24).toFixed(1)} days) after accounting for implementation and maintenance costs.</p>`
+    );
   } else {
-    return `<p>The optimization will <strong class="text-error">cost more time than it saves</strong>. You'll lose ` +
-           `${Math.abs(netBenefit).toFixed(2)} hours (${(Math.abs(netBenefit) / 24).toFixed(1)} days) over your time horizon.</p>`;
+    return (
+      `<p>The optimization will <strong class="text-error">cost more time than it saves</strong>. You'll lose ` +
+      `${Math.abs(netBenefit).toFixed(2)} hours (${(Math.abs(netBenefit) / 24).toFixed(1)} days) over your time horizon.</p>`
+    );
   }
 }
 
@@ -478,11 +479,15 @@ function buildBreakEvenInterpretation(breakEvenYearsStr: string): string {
   const timeHorizonYears = timeHorizonUnit === 'year' ? timeHorizon : timeHorizon / 12;
 
   if (breakEvenMoneyYears < timeHorizonYears) {
-    return `<p>The optimization will <strong class="text-success">pay for itself in ${breakEvenYearsStr} years</strong>, ` +
-           `which is within your planned time horizon.</p>`;
+    return (
+      `<p>The optimization will <strong class="text-success">pay for itself in ${breakEvenYearsStr} years</strong>, ` +
+      `which is within your planned time horizon.</p>`
+    );
   } else {
-    return `<p>The optimization would take <strong class="text-warning">${breakEvenYearsStr} years to pay for itself</strong>, ` +
-           `which exceeds your planned time horizon.</p>`;
+    return (
+      `<p>The optimization would take <strong class="text-warning">${breakEvenYearsStr} years to pay for itself</strong>, ` +
+      `which exceeds your planned time horizon.</p>`
+    );
   }
 }
 
@@ -605,4 +610,3 @@ function buildDecisionScoringFormulas(): string {
     </div>
   `;
 }
-

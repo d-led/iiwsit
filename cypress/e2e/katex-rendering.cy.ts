@@ -43,7 +43,9 @@ describe('KaTeX Formula Rendering', () => {
     cy.wait(300);
 
     // Check that human-readable descriptions exist
-    cy.contains('Total Requests = Rate (req/hr) × 24 (hr/day) × 365 (days/yr) × Time Horizon (years)').should('exist');
+    cy.contains(
+      'Total Requests = Rate (req/hr) × 24 (hr/day) × 365 (days/yr) × Time Horizon (years)'
+    ).should('exist');
     cy.contains('Time Saved = Current Duration × (Speed Gain % ÷ 100)').should('exist');
     cy.contains('ROI = (Net Benefit ÷ Total Cost) × 100%').should('exist');
   });
@@ -71,6 +73,8 @@ describe('KaTeX Formula Rendering', () => {
     cy.wait(300);
 
     // Check that context explanation exists
-    cy.contains('The calculations below form the mathematical foundation for the optimization decision above').should('exist');
+    cy.contains(
+      'The calculations below form the mathematical foundation for the optimization decision above'
+    ).should('exist');
   });
 });

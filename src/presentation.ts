@@ -25,7 +25,10 @@ export function getConfidenceExplanation(confidence: number): string {
 /**
  * Generate dynamic confidence factors explanation based on optimization preference
  */
-export function generateConfidenceFactorsText(costWeight: number, throughputWeight: number): string {
+export function generateConfidenceFactorsText(
+  costWeight: number,
+  throughputWeight: number
+): string {
   // Calculate the actual weights used in the scoring system
   const financialBenefitWeight = Math.round(40 * costWeight);
   const timeBenefitWeight = Math.round(40 * throughputWeight);
@@ -69,7 +72,11 @@ export function generateConfidenceFactorsText(costWeight: number, throughputWeig
 /**
  * Generate context-aware confidence message based on optimization preference
  */
-export function generateConfidenceMessage(confidenceValue: number, decision: string, optimizationPreference: number): string {
+export function generateConfidenceMessage(
+  confidenceValue: number,
+  decision: string,
+  optimizationPreference: number
+): string {
   const confidencePercent = confidenceValue.toFixed(0);
 
   // Determine the optimization focus context
@@ -88,4 +95,3 @@ export function generateConfidenceMessage(confidenceValue: number, decision: str
     return `${confidencePercent}% confident this optimization is not worthwhile${focusContext}`;
   }
 }
-

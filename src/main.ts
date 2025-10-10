@@ -3,7 +3,13 @@ import { ThroughputOptimizationCalculator } from './calculator';
 import type { CalculatorParams } from './types';
 import { Settings } from './settings';
 import { displayResults, displayVersion } from './ui';
-import { initKaTeX, waitForKaTeX, typesetMath, isKaTeXReady, setupResponsiveFormulas } from './katex';
+import {
+  initKaTeX,
+  waitForKaTeX,
+  typesetMath,
+  isKaTeXReady,
+  setupResponsiveFormulas,
+} from './katex';
 
 // Initialize the calculator
 const calculator = new ThroughputOptimizationCalculator();
@@ -198,20 +204,24 @@ document.addEventListener('DOMContentLoaded', () => {
   setupFormulasExpansion();
 
   // Try to typeset math formulas (non-blocking)
-  waitForKaTeX().then((isReady) => {
-    if (isReady) {
-      console.log('KaTeX is ready, typesetting formulas...');
-      typesetMath().then(() => {
-        console.log('KaTeX typesetting completed');
-      }).catch((err) => {
-        console.warn('KaTeX typesetting failed:', err);
-      });
-    } else {
-      console.warn('KaTeX failed to load');
-    }
-  }).catch((err) => {
-    console.warn('KaTeX initialization failed:', err);
-  });
+  waitForKaTeX()
+    .then((isReady) => {
+      if (isReady) {
+        console.log('KaTeX is ready, typesetting formulas...');
+        typesetMath()
+          .then(() => {
+            console.log('KaTeX typesetting completed');
+          })
+          .catch((err) => {
+            console.warn('KaTeX typesetting failed:', err);
+          });
+      } else {
+        console.warn('KaTeX failed to load');
+      }
+    })
+    .catch((err) => {
+      console.warn('KaTeX initialization failed:', err);
+    });
 });
 
 // ============================================================================
@@ -344,7 +354,7 @@ function setupResetButton(): void {
 function setupFormulasExpansion(): void {
   // Find the Mathematical Formulas details element
   const detailsElements = document.querySelectorAll('details');
-  const mathFormulasDetails = Array.from(detailsElements).find(details =>
+  const mathFormulasDetails = Array.from(detailsElements).find((details) =>
     details.textContent?.includes('Mathematical Formulas')
   );
 

@@ -27,7 +27,7 @@
 }
 
 /* Prevent flickering by ensuring smooth slider interaction */
-input[type="range"].range {
+input[type='range'].range {
   @apply w-full;
 }
 
