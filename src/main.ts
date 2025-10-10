@@ -3,6 +3,7 @@ import { ThroughputOptimizationCalculator } from './calculator';
 import type { CalculatorParams } from './types';
 import { Settings } from './settings';
 import { displayResults, displayVersion } from './ui';
+import { initKaTeX, waitForKaTeX, typesetMath, isKaTeXReady, setupResponsiveFormulas } from './katex';
 
 // Initialize the calculator
 const calculator = new ThroughputOptimizationCalculator();
@@ -165,6 +166,12 @@ function calculate() {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize KaTeX (non-blocking)
+  initKaTeX();
+
+  // Setup responsive formula scaling
+  setupResponsiveFormulas();
+
   // Display version
   displayVersion();
 
@@ -186,6 +193,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Setup reset button
   setupResetButton();
+
+  // Setup formulas section expansion handler
+  setupFormulasExpansion();
+
+  // Try to typeset math formulas (non-blocking)
+  waitForKaTeX().then((isReady) => {
+    if (isReady) {
+      console.log('KaTeX is ready, typesetting formulas...');
+      typesetMath().then(() => {
+        console.log('KaTeX typesetting completed');
+      }).catch((err) => {
+        console.warn('KaTeX typesetting failed:', err);
+      });
+    } else {
+      console.warn('KaTeX failed to load');
+    }
+  }).catch((err) => {
+    console.warn('KaTeX initialization failed:', err);
+  });
 });
 
 // ============================================================================
@@ -309,5 +335,31 @@ function setupResetButton(): void {
 
   if (resetButton) {
     resetButton.addEventListener('click', resetToDefaults);
+  }
+}
+
+/**
+ * Setup formulas section expansion handler to trigger KaTeX rendering
+ */
+function setupFormulasExpansion(): void {
+  // Find the Mathematical Formulas details element
+  const detailsElements = document.querySelectorAll('details');
+  const mathFormulasDetails = Array.from(detailsElements).find(details =>
+    details.textContent?.includes('Mathematical Formulas')
+  );
+
+  if (mathFormulasDetails) {
+    mathFormulasDetails.addEventListener('toggle', async () => {
+      if (mathFormulasDetails.open) {
+        // Wait a bit for the collapse animation, then typeset
+        setTimeout(async () => {
+          if (isKaTeXReady()) {
+            console.log('Mathematical formulas section expanded, typesetting with KaTeX...');
+            // Typeset the entire formulas section
+            await typesetMath();
+          }
+        }, 300);
+      }
+    });
   }
 }

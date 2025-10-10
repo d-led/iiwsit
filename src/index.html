@@ -430,6 +430,95 @@
                 </div>
               </div>
 
+              <!-- Mathematical Formulas (Collapsible) -->
+              <div class="card bg-base-100 shadow-xl">
+                <div class="card-body p-4 sm:p-6">
+                  <details class="collapse collapse-arrow">
+                    <summary class="collapse-title text-xl sm:text-2xl font-bold cursor-pointer">
+                      📐 Mathematical Formulas
+                    </summary>
+                    <div class="collapse-content text-sm sm:text-base space-y-4 pt-4">
+                      <div class="space-y-3">
+                        <h4 class="font-semibold text-lg">Core Calculations</h4>
+
+                        <div class="bg-base-200 p-3 rounded">
+                          <p class="mb-2"><strong>Total Requests Over Time Horizon:</strong></p>
+                          <div class="formula-render" data-formula='R_("total") = r * 24 * 365 * T'></div>
+                          <p class="text-xs text-base-content/70">
+                            where `r` = requests per hour, `T` = time horizon in years
+                          </p>
+                        </div>
+
+                        <div class="bg-base-200 p-3 rounded">
+                          <p class="mb-2"><strong>Time Saved Per Request:</strong></p>
+                          <div class="formula-render" data-formula='t_("saved") = d * (g / 100)'></div>
+                          <p class="text-xs text-base-content/70">
+                            where `d` = duration per request (hours), `g` = speed gain (%)
+                          </p>
+                        </div>
+
+                        <div class="bg-base-200 p-3 rounded">
+                          <p class="mb-2"><strong>Total Time Saved:</strong></p>
+                          <div class="formula-render" data-formula='T_("saved") = t_("saved") * R_("total")'></div>
+                        </div>
+
+                        <div class="bg-base-200 p-3 rounded">
+                          <p class="mb-2"><strong>Total Cost (Time-Based):</strong></p>
+                          <div class="formula-render" data-formula='C_("time") = I + (M * T)'></div>
+                          <p class="text-xs text-base-content/70">
+                            where `I` = implementation hours, `M` = maintenance hours/year
+                          </p>
+                        </div>
+
+                        <h4 class="font-semibold text-lg mt-6">Financial Analysis</h4>
+
+                        <div class="bg-base-200 p-3 rounded">
+                          <p class="mb-2"><strong>Compute Cost Savings:</strong></p>
+                          <div class="formula-render" data-formula='S_("compute") = T_("saved") * C_("compute/hr")'></div>
+                        </div>
+
+                        <div class="bg-base-200 p-3 rounded">
+                          <p class="mb-2"><strong>Total Cost (Money):</strong></p>
+                          <div class="formula-render" data-formula='C_("money") = (I + M * T) * R_("dev/hr")'></div>
+                          <p class="text-xs text-base-content/70">
+                            where `R_("dev/hr")` = developer hourly rate
+                          </p>
+                        </div>
+
+                        <div class="bg-base-200 p-3 rounded">
+                          <p class="mb-2"><strong>Net Benefit (Money):</strong></p>
+                          <div class="formula-render" data-formula='B_("money") = S_("compute") - C_("money")'></div>
+                        </div>
+
+                        <div class="bg-base-200 p-3 rounded">
+                          <p class="mb-2"><strong>Return on Investment:</strong></p>
+                          <div class="formula-render" data-formula='"ROI" = (B_("money") / C_("money")) * 100%'></div>
+                        </div>
+
+                        <div class="bg-base-200 p-3 rounded">
+                          <p class="mb-2"><strong>Break-Even Time:</strong></p>
+                          <div class="formula-render" data-formula='T_("break-even") = C_("money") / (S_("compute") / T)'></div>
+                          <p class="text-xs text-base-content/70">
+                            Time (in years) until savings offset costs
+                          </p>
+                        </div>
+
+                        <h4 class="font-semibold text-lg mt-6">Reliability Impact</h4>
+
+                        <div class="bg-base-200 p-3 rounded">
+                          <p class="mb-2"><strong>Failure Rate Change:</strong></p>
+                          <div class="formula-render" data-formula='Delta F = (F_("current") - F_("bugs")) / 100'></div>
+                          <p class="text-xs text-base-content/70">
+                            Positive values indicate improved reliability
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </details>
+                </div>
+
+              </div>
+
               <!-- Placeholder when no results yet -->
               <div id="results-placeholder" class="card bg-base-100 shadow-xl">
                 <div class="card-body p-8 text-center">

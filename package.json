@@ -31,7 +31,8 @@
   "author": "",
   "license": "MPL-2.0",
   "dependencies": {
-    "humanize-duration": "^3.33.1"
+    "humanize-duration": "^3.33.1",
+    "katex": "^0.16.23"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.14",
