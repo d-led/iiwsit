@@ -171,11 +171,11 @@ describe('Influence Diagram', () => {
       cy.visit('/#diagram');
       cy.configureHighTrafficScenario();
       cy.calculate();
-      
+
       // Wait for the diagram to render and modal to open automatically
       cy.waitForResultsAndScroll();
       cy.wait(2500); // Wait for automatic section expansion, rendering, and modal opening
-      
+
       // Verify fullscreen modal is open
       cy.shouldShowFullscreenModal();
       cy.url().should('include', '#diagram');
@@ -186,13 +186,13 @@ describe('Influence Diagram', () => {
       cy.expandInfluenceDiagram();
       cy.openFullscreenDiagram();
       cy.url().should('include', '#diagram');
-      
+
       // Reload page
       cy.reload();
-      
+
       // Wait for page to reload and modal to reopen automatically
       cy.wait(3000); // Wait for page reload, rendering, and automatic opening
-      
+
       // Verify modal reopens automatically
       cy.shouldShowFullscreenModal();
       cy.url().should('include', '#diagram');
