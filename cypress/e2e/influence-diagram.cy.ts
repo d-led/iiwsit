@@ -171,10 +171,10 @@ describe('Influence Diagram', () => {
     it.skip('should automatically open fullscreen when page loads with #diagram', () => {
       // Visit with #diagram anchor - default settings will trigger automatic calculation
       cy.visit('/#diagram');
-      
+
       // Wait for automatic calculation, results rendering, diagram rendering, and fullscreen opening
       cy.wait(5000); // Allow time for: auto-calc → results → diagram section expansion → diagram render → fullscreen open
-      
+
       // Verify fullscreen modal is open
       cy.get('#mermaid-fullscreen-modal', { timeout: 10000 }).should('be.visible');
       cy.url().should('include', '#diagram');

@@ -1,4 +1,4 @@
-# Is It Worth Speeding It (Throughput)?
+# Is It Worth Speeding It Up (Throughput)?
 
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](https://opensource.org/licenses/MPL-2.0)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fd-led%2Fiiwsit.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fd-led%2Fiiwsit?ref=badge_shield)

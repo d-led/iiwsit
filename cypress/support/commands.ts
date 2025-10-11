@@ -4,6 +4,83 @@
  * Custom Cypress commands for readable, script-like E2E tests
  */
 
+// Single source of truth for all text content
+export const TEXT_CONTENT = {
+  // Main UI text (using substrings for assertions)
+  appTitle: 'Is It Worth',
+
+  // Analysis section
+  analysisSection: 'Analysis & Mathematical Foundation',
+  mathematicalFoundation: 'Mathematical Foundation',
+  viewFormulas: 'View Mathematical Formulas',
+
+  // Influence Diagram
+  influenceDiagram: 'Influence Diagram',
+  influenceDiagramFullscreen: 'Influence Diagram',
+  diagramDescription: 'This diagram shows how all input parameters',
+  arrowsExplanation: 'Arrows show directional influence',
+  fullscreenButton: 'Fullscreen',
+
+  // Modal controls
+  closeButton: 'Close',
+  zoomInstructions: 'Use mouse wheel to zoom, drag to pan',
+
+  // Formula descriptions (partial matches)
+  totalRequestsFormula: 'Total Requests = Rate',
+  timeSavedFormula: 'Time Saved = Current Duration',
+  roiFormula: 'ROI = (Net Benefit',
+
+  // Variable explanations (partial matches)
+  totalRequestsVariables: 'where r = requests per hour',
+  timeSavedVariables: 'where d = duration per request',
+  totalCostVariables: 'where I = implementation hours',
+
+  // Foundation context
+  foundationContext: 'The calculations below form the mathematical foundation',
+
+  // Insights and explanations
+  keyInsights: 'Key Insights',
+  compoundingEffect: 'Compounding effect',
+  breakEvenDynamics: 'Break-even dynamics',
+  speedGainImpact: 'Speed gain impact',
+  compoundingExplanation: 'Higher request rate + longer time horizon',
+  breakEvenExplanation: 'Lower costs and higher benefits',
+  speedGainExplanation: 'Affects both direct time savings AND compute cost',
+
+  // Preference slider
+  preferenceSection: 'How the Preference Slider Works',
+  costFocused: 'Cost-focused',
+  balanced: 'Balanced',
+  throughputFocused: 'Throughput-focused',
+
+  // Explanation sections
+  decisionFactors: 'Decision Factors',
+  whatThisMeans: 'What This Means',
+
+  // Confidence explanations
+  confidence: 'Confidence',
+
+  // Optimization modes
+  costOptimized: 'Cost-optimized',
+  throughputOptimized: 'Throughput-optimized',
+
+  // Metrics
+  requestRate: 'Request Rate',
+  totalTimeSaved: 'Total Time Saved',
+  netBenefit: 'Net Benefit',
+  returnOnInvestment: 'Return on Investment',
+  breakEvenTime: 'Break-Even Time',
+  computeCostSavings: 'Compute Cost Savings',
+  implementationCost: 'Implementation Cost',
+  maintenanceCost: 'Maintenance Cost',
+
+  // Optimization preference
+  optimizationPreference: 'Optimization Preference',
+
+  // Additional metrics used in tests
+  maintenanceCostLabel: 'Maintenance Cost',
+} as const;
+
 // Single source of truth for all selectors
 const SELECTORS = {
   // Form inputs
@@ -210,7 +287,7 @@ declare global {
 
 Cypress.Commands.add('visitCalculator', () => {
   cy.visit('/');
-  cy.contains('Is It Worth Speeding It').should('be.visible');
+  cy.contains(TEXT_CONTENT.appTitle).should('be.visible');
 });
 
 // Input Commands
@@ -321,7 +398,7 @@ Cypress.Commands.add('shouldDisplayResults', () => {
 
   // Verify all result elements exist and have content (don't rely on visibility due to layout)
   cy.get(SELECTORS.decisionBadge).should('exist').and('not.be.empty');
-  cy.get(SELECTORS.confidence).should('exist').and('contain', 'Confidence');
+  cy.get(SELECTORS.confidence).should('exist').and('contain', TEXT_CONTENT.confidence);
   cy.get(SELECTORS.metricsTableBody)
     .should('exist')
     .find('tr')
@@ -330,15 +407,15 @@ Cypress.Commands.add('shouldDisplayResults', () => {
 });
 
 Cypress.Commands.add('shouldShowPositiveROI', () => {
-  cy.get(SELECTORS.metricsTableBody).contains('tr', 'Return on Investment').should('exist');
+  cy.get(SELECTORS.metricsTableBody).contains('tr', TEXT_CONTENT.returnOnInvestment).should('exist');
   cy.get(SELECTORS.metricsTableBody)
-    .contains('tr', 'Return on Investment')
+    .contains('tr', TEXT_CONTENT.returnOnInvestment)
     .should('not.contain', '-');
 });
 
 Cypress.Commands.add('shouldShowNegativeROI', () => {
-  cy.get(SELECTORS.metricsTableBody).contains('tr', 'Return on Investment').should('exist');
-  cy.get(SELECTORS.metricsTableBody).contains('tr', 'Return on Investment').should('contain', '-');
+  cy.get(SELECTORS.metricsTableBody).contains('tr', TEXT_CONTENT.returnOnInvestment).should('exist');
+  cy.get(SELECTORS.metricsTableBody).contains('tr', TEXT_CONTENT.returnOnInvestment).should('contain', '-');
 });
 
 Cypress.Commands.add('shouldDisplayMetric', (metricLabel: string) => {
@@ -381,15 +458,15 @@ Cypress.Commands.add('shouldShowConfidenceExplanation', () => {
 });
 
 Cypress.Commands.add('shouldDisplayMonetaryMetrics', () => {
-  cy.shouldDisplayMetric('Compute Cost Savings');
-  cy.shouldDisplayMetric('Implementation Cost (Money)');
-  cy.shouldDisplayMetric('Maintenance Cost (Money)');
-  cy.shouldDisplayMetric('Net Benefit (Money)');
-  cy.shouldDisplayMetric('Return on Investment (Money)');
+  cy.shouldDisplayMetric(TEXT_CONTENT.computeCostSavings);
+  cy.shouldDisplayMetric(TEXT_CONTENT.implementationCost);
+  cy.shouldDisplayMetric(TEXT_CONTENT.maintenanceCost);
+  cy.shouldDisplayMetric(TEXT_CONTENT.netBenefit);
+  cy.shouldDisplayMetric(TEXT_CONTENT.returnOnInvestment);
 });
 
 Cypress.Commands.add('shouldShowBreakEvenTime', () => {
-  cy.shouldDisplayMetric('Break-Even Time');
+  cy.shouldDisplayMetric(TEXT_CONTENT.breakEvenTime);
 });
 
 Cypress.Commands.add('shouldHaveDefaultConfiguration', () => {
@@ -454,8 +531,8 @@ Cypress.Commands.add('shouldHaveConfiguredValues', (values: Record<string, strin
 
 Cypress.Commands.add('shouldShowDetailedExplanation', () => {
   cy.get(SELECTORS.explanationContent).should('exist').and('not.be.empty');
-  cy.get(SELECTORS.explanationContent).should('contain', 'Decision Factors');
-  cy.get(SELECTORS.explanationContent).should('contain', 'What This Means');
+  cy.get(SELECTORS.explanationContent).should('contain', TEXT_CONTENT.decisionFactors);
+  cy.get(SELECTORS.explanationContent).should('contain', TEXT_CONTENT.whatThisMeans);
 });
 
 Cypress.Commands.add('shouldHaveRequestRate', (rate: number) => {
@@ -484,7 +561,7 @@ Cypress.Commands.add('shouldHaveTimeHorizonUnit', (unit: string) => {
 
 Cypress.Commands.add('shouldShowConfidence', () => {
   cy.get(SELECTORS.confidence).should('exist');
-  cy.get(SELECTORS.confidence).should('contain', 'Confidence');
+  cy.get(SELECTORS.confidence).should('contain', TEXT_CONTENT.confidence);
   cy.get(SELECTORS.confidence).should('contain', '%');
 });
 
@@ -498,12 +575,12 @@ Cypress.Commands.add('shouldHaveXkcdLinks', () => {
 });
 
 Cypress.Commands.add('shouldBeVisibleOnMobile', () => {
-  cy.contains('Is It Worth Speeding It').should('be.visible');
+  cy.contains(TEXT_CONTENT.appTitle).should('be.visible');
   cy.get(SELECTORS.rate).should('be.visible');
 });
 
 Cypress.Commands.add('shouldBeVisibleOnTablet', () => {
-  cy.contains('Is It Worth Speeding It').should('be.visible');
+  cy.contains(TEXT_CONTENT.appTitle).should('be.visible');
 });
 
 Cypress.Commands.add('shouldShowDecisionBadge', () => {
@@ -581,16 +658,16 @@ Cypress.Commands.add('captureDecisionText', (alias: string) => {
 // KaTeX/Formula Commands
 
 Cypress.Commands.add('shouldHaveUnifiedAnalysisSection', () => {
-  cy.contains('📊 Analysis & Mathematical Foundation').should('exist');
+  cy.contains(TEXT_CONTENT.analysisSection).should('exist');
 });
 
 Cypress.Commands.add('shouldHaveMathematicalFoundationSection', () => {
-  cy.contains('🧮 Mathematical Foundation').should('exist');
-  cy.contains('📐 View Mathematical Formulas').should('exist');
+  cy.contains(TEXT_CONTENT.mathematicalFoundation).should('exist');
+  cy.contains(TEXT_CONTENT.viewFormulas).should('exist');
 });
 
 Cypress.Commands.add('expandMathFormulas', () => {
-  cy.contains('📐 View Mathematical Formulas').click({ force: true });
+  cy.contains(TEXT_CONTENT.viewFormulas).click({ force: true });
   cy.wait(1000); // Wait for animation and KaTeX rendering
 });
 
@@ -613,29 +690,25 @@ Cypress.Commands.add('shouldHaveLargerFormulas', () => {
 });
 
 Cypress.Commands.add('shouldHaveHumanReadableDescriptions', () => {
-  cy.contains(
-    'Total Requests = Rate (req/hr) × 24 (hr/day) × 365 (days/yr) × Time Horizon (years)'
-  ).should('exist');
-  cy.contains('Time Saved = Current Duration × (Speed Gain % ÷ 100)').should('exist');
-  cy.contains('ROI = (Net Benefit ÷ Total Cost) × 100%').should('exist');
+  cy.contains(TEXT_CONTENT.totalRequestsFormula).should('exist');
+  cy.contains(TEXT_CONTENT.timeSavedFormula).should('exist');
+  cy.contains(TEXT_CONTENT.roiFormula).should('exist');
 });
 
 Cypress.Commands.add('shouldHaveVariableExplanations', () => {
-  cy.contains('where r = requests per hour, T = time horizon in years').should('exist');
-  cy.contains('where d = duration per request (hours), g = speed gain (%)').should('exist');
-  cy.contains('where I = implementation hours, M = maintenance hours/year').should('exist');
+  cy.contains(TEXT_CONTENT.totalRequestsVariables).should('exist');
+  cy.contains(TEXT_CONTENT.timeSavedVariables).should('exist');
+  cy.contains(TEXT_CONTENT.totalCostVariables).should('exist');
 });
 
 Cypress.Commands.add('shouldCollapseAndExpandFormulas', () => {
-  cy.contains('Total Requests = Rate (req/hr)').should('exist');
-  cy.contains('📐 View Mathematical Formulas').click({ force: true });
+  cy.contains(TEXT_CONTENT.totalRequestsFormula).should('exist');
+  cy.contains(TEXT_CONTENT.viewFormulas).click({ force: true });
   cy.wait(500);
 });
 
 Cypress.Commands.add('shouldShowMathematicalFoundationContext', () => {
-  cy.contains(
-    'The calculations below form the mathematical foundation for the optimization decision above'
-  ).should('exist');
+  cy.contains(TEXT_CONTENT.foundationContext).should('exist');
 });
 
 // Version and UI Commands
@@ -662,6 +735,7 @@ Cypress.Commands.add('shouldShowOptimizationPreferenceSlider', () => {
 });
 
 Cypress.Commands.add('shouldHaveOptimizationPreferenceLabel', (label: string) => {
+  // Accept the label as a parameter for flexibility
   cy.get(SELECTORS.optimizationPreferenceLabel).should('contain', label);
 });
 
@@ -745,9 +819,9 @@ Cypress.Commands.add('collapseInfluenceDiagram', () => {
 });
 
 Cypress.Commands.add('shouldShowInfluenceDiagramContent', () => {
-  cy.contains('This diagram shows how all input parameters flow through calculations to produce the final decision').should('exist');
-  cy.contains('Arrows show directional influence').should('exist');
-  cy.contains('Optimization Preference').should('exist');
+  cy.contains(TEXT_CONTENT.diagramDescription).should('exist');
+  cy.contains(TEXT_CONTENT.arrowsExplanation).should('exist');
+  cy.contains(TEXT_CONTENT.optimizationPreference).should('exist');
 });
 
 Cypress.Commands.add('shouldRenderMermaidSvg', () => {
@@ -769,7 +843,7 @@ Cypress.Commands.add('shouldShowFullscreenButton', () => {
     .scrollIntoView()
     .should('exist')
     .and('be.visible');
-  cy.get(SELECTORS.fullscreenDiagramBtn).should('contain', 'Fullscreen');
+  cy.get(SELECTORS.fullscreenDiagramBtn).should('contain', TEXT_CONTENT.fullscreenButton);
 });
 
 Cypress.Commands.add('shouldShowFullscreenButtonWithTitle', () => {
@@ -792,11 +866,11 @@ Cypress.Commands.add('shouldShowFullscreenModal', () => {
 });
 
 Cypress.Commands.add('shouldShowFullscreenModalTitle', () => {
-  cy.contains('📈 Influence Diagram - Full Screen').should('be.visible');
+  cy.contains(TEXT_CONTENT.influenceDiagramFullscreen).should('be.visible');
 });
 
 Cypress.Commands.add('shouldShowMermaidControls', () => {
-  cy.contains('💡 Use mouse wheel to zoom, drag to pan').should('be.visible');
+  cy.contains(TEXT_CONTENT.zoomInstructions).should('be.visible');
 });
 
 Cypress.Commands.add('shouldRenderFullscreenSvg', () => {
@@ -856,32 +930,32 @@ Cypress.Commands.add('shouldContainAllDiagramNodes', () => {
 });
 
 Cypress.Commands.add('shouldShowSuccessFactors', () => {
-  cy.contains(SELECTORS.keyInsights).should('exist');
-  cy.contains(SELECTORS.compoundingEffect).should('exist');
-  cy.contains(SELECTORS.breakEvenDynamics).should('exist');
-  cy.contains(SELECTORS.speedGainImpact).should('exist');
+  cy.contains(TEXT_CONTENT.keyInsights).should('exist');
+  cy.contains(TEXT_CONTENT.compoundingEffect).should('exist');
+  cy.contains(TEXT_CONTENT.breakEvenDynamics).should('exist');
+  cy.contains(TEXT_CONTENT.speedGainImpact).should('exist');
 });
 
 Cypress.Commands.add('shouldShowFeedbackLoops', () => {
-  cy.contains(SELECTORS.preferenceSliderSection).should('exist');
-  cy.contains('Cost-focused').should('exist');
-  cy.contains('Balanced').should('exist');
-  cy.contains('Throughput-focused').should('exist');
+  cy.contains(TEXT_CONTENT.preferenceSection).should('exist');
+  cy.contains(TEXT_CONTENT.costFocused).should('exist');
+  cy.contains(TEXT_CONTENT.balanced).should('exist');
+  cy.contains(TEXT_CONTENT.throughputFocused).should('exist');
 });
 
 Cypress.Commands.add('shouldShowCompoundingEffect', () => {
-  cy.contains(SELECTORS.compoundingEffect).should('exist');
-  cy.contains('Higher request rate + longer time horizon = exponential benefit growth').should('exist');
+  cy.contains(TEXT_CONTENT.compoundingEffect).should('exist');
+  cy.contains(TEXT_CONTENT.compoundingExplanation).should('exist');
 });
 
 Cypress.Commands.add('shouldShowBreakEvenDynamics', () => {
-  cy.contains(SELECTORS.breakEvenDynamics).should('exist');
-  cy.contains('Lower costs and higher benefits both reduce break-even time').should('exist');
+  cy.contains(TEXT_CONTENT.breakEvenDynamics).should('exist');
+  cy.contains(TEXT_CONTENT.breakEvenExplanation).should('exist');
 });
 
 Cypress.Commands.add('shouldShowSpeedGainImpact', () => {
-  cy.contains(SELECTORS.speedGainImpact).should('exist');
-  cy.contains('Affects both direct time savings AND compute cost savings').should('exist');
+  cy.contains(TEXT_CONTENT.speedGainImpact).should('exist');
+  cy.contains(TEXT_CONTENT.speedGainExplanation).should('exist');
 });
 
 Cypress.Commands.add('shouldHaveAccessibleFullscreenButton', () => {
@@ -894,7 +968,7 @@ Cypress.Commands.add('shouldHaveAccessibleFullscreenButton', () => {
 Cypress.Commands.add('shouldHaveAccessibleCloseButton', () => {
   cy.get(SELECTORS.closeFullscreenBtn)
     .should('be.visible')
-    .and('contain', 'Close');
+    .and('contain', TEXT_CONTENT.closeButton);
 });
 
 Cypress.Commands.add('shouldRenderDiagramWithinReasonableTime', () => {

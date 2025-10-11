@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { TEXT_CONTENT } from '../support/commands';
+
 describe('UI Behavior and User Experience', () => {
   beforeEach(() => {
     cy.visitCalculator();
@@ -7,7 +9,7 @@ describe('UI Behavior and User Experience', () => {
 
   describe('Initial Load', () => {
     it('should display form with default values and auto-calculate', () => {
-      cy.contains('Is It Worth Speeding It').should('be.visible');
+      cy.contains(TEXT_CONTENT.appTitle).should('be.visible');
       cy.shouldShowCalculatorForm();
       cy.shouldHaveDefaultConfiguration();
       cy.shouldDisplayResults();

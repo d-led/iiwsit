@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { TEXT_CONTENT } from '../support/commands';
+
 describe('Calculator Workflows', () => {
   beforeEach(() => {
     cy.visitCalculator();
@@ -14,10 +16,10 @@ describe('Calculator Workflows', () => {
       cy.shouldRecommendDecision('YES');
       cy.shouldHaveConfidenceAbove(60);
       cy.shouldShowPositiveROI();
-      cy.shouldDisplayMetric('Request Rate');
-      cy.shouldDisplayMetric('Total Time Saved');
-      cy.shouldDisplayMetric('Net Benefit');
-      cy.shouldDisplayMetric('Return on Investment');
+      cy.shouldDisplayMetric(TEXT_CONTENT.requestRate);
+      cy.shouldDisplayMetric(TEXT_CONTENT.totalTimeSaved);
+      cy.shouldDisplayMetric(TEXT_CONTENT.netBenefit);
+      cy.shouldDisplayMetric(TEXT_CONTENT.returnOnInvestment);
       cy.shouldShowBreakEvenTime();
     });
   });
@@ -46,7 +48,7 @@ describe('Calculator Workflows', () => {
       cy.enterTimeHorizon(5, 'year');
       cy.calculate();
       cy.shouldDisplayResults();
-      cy.shouldDisplayMetric('Break-Even Time');
+      cy.shouldDisplayMetric(TEXT_CONTENT.breakEvenTime);
     });
   });
 });

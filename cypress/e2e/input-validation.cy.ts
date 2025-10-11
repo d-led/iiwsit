@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { TEXT_CONTENT } from '../support/commands';
+
 describe('Input Validation and Edge Cases', () => {
   beforeEach(() => {
     cy.visitCalculator();
@@ -12,7 +14,7 @@ describe('Input Validation and Edge Cases', () => {
       cy.calculate();
 
       cy.shouldDisplayResults();
-      cy.shouldDisplayMetric('Maintenance Cost');
+      cy.shouldDisplayMetric(TEXT_CONTENT.maintenanceCost);
     });
 
     it('should handle very high speed gains', () => {
@@ -41,7 +43,7 @@ describe('Input Validation and Edge Cases', () => {
       cy.calculate();
 
       cy.shouldDisplayResults();
-      cy.shouldDisplayMetric('Total Time Saved');
+      cy.shouldDisplayMetric(TEXT_CONTENT.totalTimeSaved);
     });
   });
 });

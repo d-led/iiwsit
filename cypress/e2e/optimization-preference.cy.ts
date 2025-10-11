@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import { TEXT_CONTENT } from '../support/commands';
+
 describe('Optimization Preference Slider', () => {
   beforeEach(() => {
     cy.visitCalculator();
@@ -8,18 +10,18 @@ describe('Optimization Preference Slider', () => {
   describe('When adjusting optimization preference', () => {
     it('should display slider with default "Balanced" label', () => {
       cy.shouldShowOptimizationPreferenceSlider();
-      cy.shouldHaveOptimizationPreferenceLabel('Balanced');
+      cy.shouldHaveOptimizationPreferenceLabel(TEXT_CONTENT.balanced);
     });
 
     it('should update label based on slider value', () => {
       cy.enterOptimizationPreference(0);
-      cy.shouldHaveOptimizationPreferenceLabel('Cost-focused');
+      cy.shouldHaveOptimizationPreferenceLabel(TEXT_CONTENT.costFocused);
 
       cy.enterOptimizationPreference(100);
-      cy.shouldHaveOptimizationPreferenceLabel('Throughput-focused');
+      cy.shouldHaveOptimizationPreferenceLabel(TEXT_CONTENT.throughputFocused);
 
       cy.enterOptimizationPreference(50);
-      cy.shouldHaveOptimizationPreferenceLabel('Balanced');
+      cy.shouldHaveOptimizationPreferenceLabel(TEXT_CONTENT.balanced);
     });
   });
 
@@ -32,15 +34,15 @@ describe('Optimization Preference Slider', () => {
       cy.enterOptimizationPreference(0);
       cy.calculate();
       cy.shouldDisplayResults();
-      cy.shouldContainTextInExplanation('Cost-optimized');
+      cy.shouldContainTextInExplanation(TEXT_CONTENT.costOptimized);
 
       cy.enterOptimizationPreference(100);
       cy.calculate();
-      cy.shouldContainTextInExplanation('Throughput-optimized');
+      cy.shouldContainTextInExplanation(TEXT_CONTENT.throughputOptimized);
 
       cy.enterOptimizationPreference(50);
       cy.calculate();
-      cy.shouldContainTextInExplanation('Balanced');
+      cy.shouldContainTextInExplanation(TEXT_CONTENT.balanced);
     });
   });
 
