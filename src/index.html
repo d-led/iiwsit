@@ -181,11 +181,11 @@
                   </label>
                 </div>
 
-                <!-- Expected Introduced Bug-Induced Request Failure Rate -->
+                <!-- Additional Bug-Induced Failure Rate -->
                 <div class="form-control">
                   <label class="label">
                     <span class="label-text font-semibold text-sm sm:text-base"
-                      >Expected Introduced Bug-Induced Request Failure Rate:
+                      >Additional Bug-Induced Failure Rate:
                       <span id="bug-failure-value" class="text-primary">1%</span></span
                     >
                   </label>
@@ -200,7 +200,7 @@
                   />
                   <label class="label">
                     <span class="label-text-alt text-xs sm:text-sm"
-                      >Percentage of requests expected to fail from newly introduced bugs</span
+                      >Extra failure rate added on top of current rate due to bugs in optimization</span
                     >
                   </label>
                 </div>
@@ -535,21 +535,114 @@
                           </p>
                         </div>
 
-                        <h4 class="font-semibold text-lg mt-6">Reliability Impact</h4>
-
-                        <div class="bg-base-200 p-3 rounded">
-                          <p class="mb-2"><strong>Failure Rate Change:</strong></p>
-                          <div
-                            class="formula-render"
-                            data-formula='Delta F = (F_("current") - F_("bugs")) / 100'
-                          ></div>
-                          <p class="text-xs text-base-content/70">
-                            Positive values indicate improved reliability
-                          </p>
                         </div>
                       </div>
                     </div>
-                  </details>
+                  </div>
+
+                  <!-- Influence Diagram Section -->
+                  <div class="mt-8">
+                    <div class="divider">🔄 Decision Influence Diagram</div>
+                    <div class="collapse collapse-arrow bg-base-200 mt-4">
+                      <input type="checkbox" />
+                      <div class="collapse-title text-lg font-medium">📈 View Factor Influence Map</div>
+                      <div class="collapse-content">
+                        <div class="pt-4">
+                          <p class="text-sm text-base-content/70 mb-6">
+                            This diagram shows how all factors interact to influence the final optimization decision.
+                            Green arrows indicate positive influence, red arrows indicate negative influence, and orange nodes are critical leverage points.
+                          </p>
+
+                          <div class="bg-base-100 p-4 rounded-lg border">
+                            <div id="influence-diagram" class="mermaid">
+                              graph TD
+                                %% Input Factors
+                                RR[Request Rate] --> TTS[Total Time Saved]
+                                SG[Speed Gain %] --> TTS
+                                RD[Request Duration] --> TTS
+                                TH[Time Horizon] --> TTS
+                                TH --> TTC[Total Cost]
+
+                                %% Cost Factors
+                                IT[Implementation Time] --> TTC
+                                MT[Maintenance Time] --> TTC
+                                DR[Developer Rate] --> TCM[Total Cost Money]
+                                TTC --> TCM
+                                TTC --> NB[Net Benefit Time]
+
+                                %% Financial Calculations
+                                TTS --> NBM[Net Benefit Money]
+                                TTS --> CCS[Compute Cost Savings]
+                                CC[Compute Cost/Hour] --> CCS
+                                CCS --> NBM
+                                TCM --> NBM
+                                TCM --> ROIM[ROI Money]
+                                NBM --> ROIM
+
+                                %% Time-based Calculations
+                                TTS --> NB
+                                TTC --> NB
+                                NB --> ROIT[ROI Time]
+                                TTC --> ROIT
+
+                                %% Risk Factors
+                                CFR[Current Failure Rate] --> FRC[Failure Rate Change]
+                                ABFR[Additional Bug Failure Rate] --> FRC
+                                FRC --> DC[Decision Confidence]
+
+                                %% Decision Making
+                                NBM --> DC
+                                NB --> DC
+                                ROIM --> DC
+                                ROIT --> DC
+                                OP[Optimization Preference] --> DC
+                                DC --> FD[Final Decision]
+
+                                %% Break-even calculations
+                                NBM --> BET[Break-even Time]
+                                TCM --> BET
+
+                                %% Styling
+                                classDef inputFactor fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+                                classDef costFactor fill:#ffebee,stroke:#c62828,stroke-width:2px
+                                classDef benefitFactor fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+                                classDef riskFactor fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
+                                classDef calculation fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+                                classDef decision fill:#ffeb3b,stroke:#f57f17,stroke-width:3px
+                                classDef leverage fill:#ff9800,stroke:#e65100,stroke-width:3px
+
+                                class RR,SG,RD,TH inputFactor
+                                class IT,MT,DR,TTC,TCM costFactor
+                                class TTS,CCS,NB,NBM benefitFactor
+                                class CFR,ABFR,FRC riskFactor
+                                class ROIM,ROIT,BET calculation
+                                class FD decision
+                                class OP leverage
+                            </div>
+                          </div>
+
+                          <div class="mt-6 space-y-4">
+                            <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+                              <h4 class="font-semibold text-blue-800 mb-2">🎯 Key Success Factors</h4>
+                              <ul class="text-sm text-blue-700 space-y-1">
+                                <li><strong>Request Rate Amplification:</strong> High traffic creates exponential value from speed improvements</li>
+                                <li><strong>Time Horizon Leverage:</strong> Longer horizons allow modest optimizations to accumulate substantial value</li>
+                                <li><strong>Optimization Preference:</strong> Master control lever that weights cost vs. throughput priorities</li>
+                              </ul>
+                            </div>
+
+                            <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-400">
+                              <h4 class="font-semibold text-green-800 mb-2">🔄 Critical Feedback Loops</h4>
+                              <ul class="text-sm text-green-700 space-y-1">
+                                <li><strong>High Traffic Loop:</strong> More requests → More time saved → Higher benefits → Better decisions</li>
+                                <li><strong>Cost Efficiency Loop:</strong> Lower costs → Better ROI → Higher confidence → Stronger recommendations</li>
+                                <li><strong>Risk vs Reward:</strong> Failure rate changes directly impact decision confidence and reliability</li>
+                              </ul>
+                            </div>                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 

@@ -39,7 +39,8 @@ export interface CalculationMetrics {
   roi: string;
   breakEvenYears: string;
   currentFailedRequests: string;
-  bugFailedRequests: string;
+  newFailedRequests: string;
+  additionalBugFailedRequests: string;
   netFailureChange: string;
   failureRateChange: string;
   // Monetary metrics

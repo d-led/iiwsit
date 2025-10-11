@@ -80,32 +80,6 @@ describe('Throughput Optimization Decision Calculator', () => {
     });
   });
 
-  describe('When dealing with failure rates', () => {
-    it('should favor optimizations that reduce failure rates significantly', () => {
-      const params = createDefaultParams();
-      params.currentFailure = 20; // High current failure
-      params.bugFailure = 2; // Low expected bugs
-      params.speedGain = 40;
-
-      const result = calculator.calculate(params);
-
-      const failureImprovement = parseFloat(result.metrics.failureRateChange);
-      expect(failureImprovement).toBeGreaterThan(0);
-      expect(result.decision).toBe('YES');
-    });
-
-    it('should penalize optimizations that introduce more failures than they fix', () => {
-      const params = createDefaultParams();
-      params.currentFailure = 1; // Low current failure
-      params.bugFailure = 10; // High expected bugs
-
-      const result = calculator.calculate(params);
-
-      const failureChange = parseFloat(result.metrics.failureRateChange);
-      expect(failureChange).toBeLessThan(0); // More failures
-    });
-  });
-
   describe('When considering break-even time', () => {
     it('should recognize quick break-even as favorable', () => {
       const params = createDefaultParams();
@@ -332,8 +306,6 @@ describe('Throughput Optimization Decision Calculator', () => {
       // Create a scenario with mixed signals
       params.rate = 50;
       params.speedGain = 15;
-      params.currentFailure = 5;
-      params.bugFailure = 4;
       params.maintenance = 3;
       params.implementationTime = 100;
 

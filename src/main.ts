@@ -10,6 +10,13 @@ import {
   isKaTeXReady,
   setupResponsiveFormulas,
 } from './katex';
+import {
+  initMermaid,
+  renderMermaidDiagrams,
+  waitForMermaid,
+  setupMermaidExpansion,
+  createFullscreenModal,
+} from './mermaid';
 
 // Initialize the calculator
 const calculator = new ThroughputOptimizationCalculator();
@@ -175,6 +182,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize KaTeX (non-blocking)
   initKaTeX();
 
+  // Initialize Mermaid (non-blocking)
+  initMermaid();
+
+  // Create fullscreen modal for diagrams
+  createFullscreenModal();
+
   // Setup responsive formula scaling
   setupResponsiveFormulas();
 
@@ -203,6 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Setup formulas section expansion handler
   setupFormulasExpansion();
 
+  // Setup Mermaid expansion handler
+  setupMermaidExpansion();
+
   // Try to typeset math formulas (non-blocking)
   waitForKaTeX()
     .then((isReady) => {
@@ -221,6 +237,26 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch((err) => {
       console.warn('KaTeX initialization failed:', err);
+    });
+
+  // Try to render Mermaid diagrams (non-blocking)
+  waitForMermaid()
+    .then((isReady) => {
+      if (isReady) {
+        console.log('Mermaid is ready, rendering diagrams...');
+        renderMermaidDiagrams()
+          .then(() => {
+            console.log('Mermaid rendering completed');
+          })
+          .catch((err) => {
+            console.warn('Mermaid rendering failed:', err);
+          });
+      } else {
+        console.warn('Mermaid failed to initialize');
+      }
+    })
+    .catch((err) => {
+      console.warn('Mermaid initialization failed:', err);
     });
 });
 

@@ -8,17 +8,14 @@ describe('UI Behavior and User Experience', () => {
   describe('When first visiting the calculator', () => {
     it('should display the header and form', () => {
       cy.contains('Is It Worth Speeding It').should('be.visible');
-      cy.get('#calculator-form').should('be.visible');
-      cy.get('#rate').should('be.visible');
+      cy.shouldShowCalculatorForm();
     });
 
     it('should have default values pre-filled', () => {
-      // We'll add a command to verify default configuration
       cy.shouldHaveDefaultConfiguration();
     });
 
     it('should auto-calculate results on page load with default values', () => {
-      // The app automatically calculates results with default values on load
       cy.shouldDisplayResults();
       cy.shouldShowDecisionBadge();
     });

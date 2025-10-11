@@ -32,6 +32,7 @@ const SELECTORS = {
   confidenceExplanation: '#confidence-explanation',
   metricsBreakdown: '#metrics-breakdown',
   metricsTableBody: '#metrics-table-body',
+  metricsTableRows: '#metrics-table-body tr',
   explanationContent: '#explanation-content',
 
   // Data attributes
@@ -47,6 +48,30 @@ const SELECTORS = {
   formulaRenderWithData: '.formula-render[data-formula]',
   katexElement: '.katex',
   formulaContextText: 'p:contains("The calculations below form the mathematical foundation")',
+
+  // Influence Diagram
+  influenceDiagramDivider: 'div.divider:contains("🔄 Decision Influence Diagram")',
+  viewInfluenceMapToggle: 'div.collapse-title:contains("📈 View Factor Influence Map")',
+  influenceDiagram: '#influence-diagram',
+  influenceDiagramContainer: '#influence-diagram',
+  fullscreenDiagramBtn: '#fullscreen-diagram-btn',
+  mermaidDiagram: '.mermaid',
+  mermaidSvg: '.mermaid svg',
+
+  // Fullscreen Modal
+  mermaidFullscreenModal: '#mermaid-fullscreen-modal',
+  fullscreenModalTitle: 'h3:contains("📈 Influence Diagram - Full Screen")',
+  closeFullscreenBtn: '#close-fullscreen-btn',
+  fullscreenMermaidContainer: '#fullscreen-mermaid-container',
+  fullscreenMermaidDiagram: '#fullscreen-mermaid-diagram',
+  fullscreenMermaidSvg: '#fullscreen-mermaid-diagram svg',
+  fullscreenInstructions: 'div:contains("💡 Use mouse wheel to zoom, drag to pan (Mermaid native controls)")',
+
+  // Version and UI elements
+  appVersion: '#app-version',
+  footer: 'footer',
+  calculatorForm: '#calculator-form',
+  optimizationPreferenceLabel: '#optimization-preference-label',
 } as const;
 
 declare global {
@@ -130,6 +155,33 @@ declare global {
       shouldHaveVariableExplanations(): Chainable<void>;
       shouldCollapseAndExpandFormulas(): Chainable<void>;
       shouldShowMathematicalFoundationContext(): Chainable<void>;
+
+      // Version and UI commands
+      shouldDisplayVersion(): Chainable<void>;
+      shouldHaveVersionFormat(): Chainable<void>;
+      shouldShowOptimizationPreferenceSlider(): Chainable<void>;
+      shouldHaveOptimizationPreferenceLabel(label: string): Chainable<void>;
+      shouldShowCalculatorForm(): Chainable<void>;
+      shouldContainTextInExplanation(text: string): Chainable<void>;
+      costDecisionShouldBeOneOf(validDecisions: string[]): Chainable<void>;
+      throughputDecisionShouldBeOneOf(validDecisions: string[]): Chainable<void>;
+
+      // Influence Diagram commands
+      expandInfluenceDiagram(): Chainable<void>;
+      shouldShowInfluenceDiagram(): Chainable<void>;
+      shouldShowInfluenceDiagramContent(): Chainable<void>;
+      shouldShowFullscreenButton(): Chainable<void>;
+      openFullscreenDiagram(): Chainable<void>;
+      shouldShowFullscreenModal(): Chainable<void>;
+      shouldShowFullscreenDiagram(): Chainable<void>;
+      closeFullscreenModal(): Chainable<void>;
+      shouldHideFullscreenModal(): Chainable<void>;
+      closeFullscreenModalWithEscape(): Chainable<void>;
+      closeFullscreenModalWithBackdrop(): Chainable<void>;
+      shouldShowInfluenceDiagramNodes(): Chainable<void>;
+      shouldShowSuccessFactors(): Chainable<void>;
+      shouldShowFeedbackLoops(): Chainable<void>;
+      testInfluenceDiagramWorkflow(): Chainable<void>;
     }
   }
 }
@@ -314,9 +366,9 @@ Cypress.Commands.add('shouldHaveConfidenceBelow', (percentage: number) => {
 });
 
 Cypress.Commands.add('shouldShowConfidenceExplanation', () => {
-  cy.get('#confidence-explanation').should('exist').and('not.be.empty');
+  cy.get(SELECTORS.confidenceExplanation).should('exist').and('not.be.empty');
   // Should contain actionable language for busy users
-  cy.get('#confidence-explanation')
+  cy.get(SELECTORS.confidenceExplanation)
     .invoke('text')
     .should(
       'match',
@@ -365,13 +417,37 @@ Cypress.Commands.add('resetToDefaults', () => {
 });
 
 Cypress.Commands.add('shouldHaveConfiguredValues', (values: Record<string, string>) => {
+  // Mapping from field IDs to SELECTORS keys
+  const fieldIdToSelector: Record<string, keyof typeof SELECTORS> = {
+    rate: 'rate',
+    'rate-unit': 'rateUnit',
+    duration: 'duration',
+    'duration-unit': 'durationUnit',
+    'speed-gain': 'speedGain',
+    'current-failure': 'currentFailure',
+    'bug-failure': 'bugFailure',
+    maintenance: 'maintenance',
+    'maintenance-unit': 'maintenanceUnit',
+    'implementation-time': 'implementationTime',
+    'time-horizon': 'timeHorizon',
+    'time-horizon-unit': 'timeHorizonUnit',
+    'compute-cost': 'computeCost',
+    'developer-rate': 'developerRate',
+    'optimization-preference': 'optimizationPreference',
+  };
+
   Object.entries(values).forEach(([fieldId, expectedValue]) => {
+    const selectorKey = fieldIdToSelector[fieldId];
+    if (!selectorKey) {
+      throw new Error(`Unknown field ID: ${fieldId}. Add it to fieldIdToSelector mapping.`);
+    }
+
     // Allow flexible matching for decimal values like 0.5 vs 0.50
     if (expectedValue.match(/^\d+\.\d*0$/)) {
       const flexiblePattern = new RegExp(`^${expectedValue.replace(/\.?0+$/, '(?:\\.\\d+)?')}$`);
-      cy.get(`#${fieldId}`).invoke('val').should('match', flexiblePattern);
+      cy.get(SELECTORS[selectorKey]).invoke('val').should('match', flexiblePattern);
     } else {
-      cy.get(`#${fieldId}`).should('have.value', expectedValue);
+      cy.get(SELECTORS[selectorKey]).should('have.value', expectedValue);
     }
   });
 });
@@ -414,7 +490,7 @@ Cypress.Commands.add('shouldShowConfidence', () => {
 
 Cypress.Commands.add('shouldShowMetricsTable', () => {
   cy.get(SELECTORS.metricsBreakdown).should('exist');
-  cy.get(`${SELECTORS.metricsTableBody} tr`).should('have.length.greaterThan', 5);
+  cy.get(SELECTORS.metricsTableRows).should('have.length.greaterThan', 5);
 });
 
 Cypress.Commands.add('shouldHaveXkcdLinks', () => {
@@ -560,6 +636,203 @@ Cypress.Commands.add('shouldShowMathematicalFoundationContext', () => {
   cy.contains(
     'The calculations below form the mathematical foundation for the optimization decision above'
   ).should('exist');
+});
+
+// Version and UI Commands
+
+Cypress.Commands.add('shouldDisplayVersion', () => {
+  cy.get(SELECTORS.appVersion).should('exist').and('not.be.empty');
+  cy.get(SELECTORS.appVersion)
+    .invoke('text')
+    .should('match', /^[\w-]+$/);
+});
+
+Cypress.Commands.add('shouldHaveVersionFormat', () => {
+  cy.get(SELECTORS.appVersion)
+    .invoke('text')
+    .then((versionText) => {
+      expect(versionText.length).to.be.greaterThan(0);
+      expect(versionText).to.include('-');
+    });
+});
+
+Cypress.Commands.add('shouldShowOptimizationPreferenceSlider', () => {
+  cy.get(SELECTORS.optimizationPreference).should('exist').and('be.visible');
+  cy.get(SELECTORS.optimizationPreferenceLabel).should('exist').and('be.visible');
+});
+
+Cypress.Commands.add('shouldHaveOptimizationPreferenceLabel', (label: string) => {
+  cy.get(SELECTORS.optimizationPreferenceLabel).should('contain', label);
+});
+
+Cypress.Commands.add('shouldShowCalculatorForm', () => {
+  cy.get(SELECTORS.calculatorForm).should('be.visible');
+  cy.get(SELECTORS.rate).should('be.visible');
+});
+
+Cypress.Commands.add('shouldContainTextInExplanation', (text: string) => {
+  cy.get(SELECTORS.explanationContent).should('contain', text);
+});
+
+Cypress.Commands.add('costDecisionShouldBeOneOf', (validDecisions: string[]) => {
+  cy.get('@costDecision').should('be.oneOf', validDecisions);
+});
+
+Cypress.Commands.add('throughputDecisionShouldBeOneOf', (validDecisions: string[]) => {
+  cy.get('@throughputDecision').should('be.oneOf', validDecisions);
+});
+
+// Influence Diagram Commands
+
+Cypress.Commands.add('expandInfluenceDiagram', () => {
+  // First ensure results are generated and scroll to results section
+  cy.get(SELECTORS.resultsSection).scrollIntoView();
+  cy.get(SELECTORS.decisionBadge).should('exist');
+
+  // Click to expand the influence diagram section
+  cy.get(SELECTORS.viewInfluenceMapToggle).click({ force: true });
+  
+  // Wait for DaisyUI collapse animation to complete by checking the checkbox state
+  cy.get(SELECTORS.viewInfluenceMapToggle).parent().find('input[type="checkbox"]').should('be.checked');
+  cy.wait(800); // Wait for CSS transition to complete (DaisyUI uses 300ms + rendering time)
+});
+
+Cypress.Commands.add('shouldShowInfluenceDiagram', () => {
+  // Wait for the diagram to exist and become visible (with increased timeout for DaisyUI animation)
+  cy.get(SELECTORS.influenceDiagram, { timeout: 10000 })
+    .should('exist')
+    .should(($el) => {
+      // Check if element is actually visible in viewport (not just display/visibility CSS)
+      const el = $el[0];
+      const rect = el.getBoundingClientRect();
+      expect(rect.width).to.be.greaterThan(0);
+      expect(rect.height).to.be.greaterThan(0);
+    });
+
+  // Wait for Mermaid to render the SVG
+  cy.get(SELECTORS.mermaidSvg, { timeout: 10000 }).should('exist').and('be.visible');
+});
+
+Cypress.Commands.add('shouldShowInfluenceDiagramContent', () => {
+  cy.contains('This diagram shows how all factors interact to influence the final optimization decision').should('exist');
+  cy.contains('Green arrows indicate positive influence').should('exist');
+  cy.contains('orange nodes are critical leverage points').should('exist');
+});
+
+Cypress.Commands.add('shouldShowFullscreenButton', () => {
+  // Wait for the diagram to be fully visible first
+  cy.get(SELECTORS.influenceDiagram, { timeout: 10000 })
+    .should(($el) => {
+      const el = $el[0];
+      const rect = el.getBoundingClientRect();
+      expect(rect.width).to.be.greaterThan(0);
+      expect(rect.height).to.be.greaterThan(0);
+    });
+  
+  cy.get(SELECTORS.fullscreenDiagramBtn, { timeout: 10000 }).should('exist').and('be.visible');
+  cy.get(SELECTORS.fullscreenDiagramBtn).should('contain', 'Fullscreen');
+});
+
+Cypress.Commands.add('openFullscreenDiagram', () => {
+  cy.get(SELECTORS.fullscreenDiagramBtn).click({ force: true });
+  cy.wait(300); // Wait for modal animation
+});
+
+Cypress.Commands.add('shouldShowFullscreenModal', () => {
+  cy.get(SELECTORS.mermaidFullscreenModal).should('exist').and('be.visible');
+  cy.get(SELECTORS.fullscreenModalTitle).should('exist').and('be.visible');
+  cy.get(SELECTORS.closeFullscreenBtn).should('exist').and('be.visible');
+  cy.get(SELECTORS.fullscreenInstructions).should('exist').and('be.visible');
+});
+
+Cypress.Commands.add('shouldShowFullscreenDiagram', () => {
+  cy.get(SELECTORS.fullscreenMermaidDiagram).should('exist').and('be.visible');
+  cy.get(SELECTORS.fullscreenMermaidSvg).should('exist').and('be.visible');
+});
+
+Cypress.Commands.add('closeFullscreenModal', () => {
+  cy.get(SELECTORS.closeFullscreenBtn).click({ force: true });
+  cy.wait(300); // Wait for modal close animation
+});
+
+Cypress.Commands.add('shouldHideFullscreenModal', () => {
+  cy.get(SELECTORS.mermaidFullscreenModal).should('not.be.visible');
+});
+
+Cypress.Commands.add('closeFullscreenModalWithEscape', () => {
+  cy.get(SELECTORS.mermaidFullscreenModal).should('be.visible');
+  cy.get('body').type('{esc}');
+  cy.wait(300); // Wait for modal close animation
+});
+
+Cypress.Commands.add('closeFullscreenModalWithBackdrop', () => {
+  cy.get(SELECTORS.mermaidFullscreenModal).should('be.visible');
+  // Click on the modal backdrop (the dark overlay)
+  cy.get(SELECTORS.mermaidFullscreenModal).click({ force: true });
+  cy.wait(300); // Wait for modal close animation
+});
+
+Cypress.Commands.add('shouldShowInfluenceDiagramNodes', () => {
+  // Check for key nodes in the influence diagram
+  cy.get(SELECTORS.mermaidSvg).should('contain.text', 'Request Rate');
+  cy.get(SELECTORS.mermaidSvg).should('contain.text', 'Speed Gain %');
+  cy.get(SELECTORS.mermaidSvg).should('contain.text', 'Total Time Saved');
+  cy.get(SELECTORS.mermaidSvg).should('contain.text', 'Net Benefit');
+  cy.get(SELECTORS.mermaidSvg).should('contain.text', 'Final Decision');
+});
+
+Cypress.Commands.add('shouldShowSuccessFactors', () => {
+  cy.contains('🎯 Key Success Factors').should('exist');
+  cy.contains('Request Rate Amplification').should('exist');
+  cy.contains('Time Horizon Leverage').should('exist');
+  cy.contains('Optimization Preference').should('exist');
+});
+
+Cypress.Commands.add('shouldShowFeedbackLoops', () => {
+  cy.contains('🔄 Critical Feedback Loops').should('exist');
+  cy.contains('High Traffic Loop').should('exist');
+  cy.contains('Cost Efficiency Loop').should('exist');
+  cy.contains('Risk vs Reward').should('exist');
+});
+
+Cypress.Commands.add('testInfluenceDiagramWorkflow', () => {
+  // Fill in some data to generate results
+  cy.configureHighTrafficScenario();
+  cy.calculate();
+
+  // Wait for results to be generated and scroll to them
+  cy.get(SELECTORS.resultsSection).scrollIntoView();
+  cy.get(SELECTORS.decisionBadge).should('exist');
+
+  // Expand the influence diagram
+  cy.expandInfluenceDiagram();
+
+  // Verify diagram content
+  cy.shouldShowInfluenceDiagramContent();
+  cy.shouldShowInfluenceDiagram();
+  cy.shouldShowInfluenceDiagramNodes();
+
+  // Verify fullscreen button appears
+  cy.shouldShowFullscreenButton();
+
+  // Test fullscreen functionality
+  cy.openFullscreenDiagram();
+  cy.shouldShowFullscreenModal();
+  cy.shouldShowFullscreenDiagram();
+
+  // Test closing fullscreen
+  cy.closeFullscreenModal();
+  cy.shouldHideFullscreenModal();
+
+  // Test alternative close methods
+  cy.openFullscreenDiagram();
+  cy.closeFullscreenModalWithEscape();
+  cy.shouldHideFullscreenModal();
+
+  // Verify success factors and feedback loops
+  cy.expandInfluenceDiagram();
+  cy.shouldShowSuccessFactors();
+  cy.shouldShowFeedbackLoops();
 });
 
 export {};

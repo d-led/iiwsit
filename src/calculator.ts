@@ -275,34 +275,31 @@ export class ThroughputOptimizationCalculator {
       reasons.push('Never breaks even on time (0 points - infinite payback time)');
     }
 
-    // Factor 4: Failure rate improvement (15 points)
+    // Factor 4: Failure rate impact (15 points max)
+    // Formula-based scoring: neutral point at 0% change (7.5 points)
+    // Linear scaling: each 1% improvement adds 0.75 points, each 1% degradation removes 0.75 points
+    // Bounded between 0 and 15 points
     maxScore += 15;
-    if (failureRateChange > 0.03) {
-      score += 15;
+    const failureRateChangePercent = failureRateChange * 100;
+    const baseFailureScore = 7.5; // Neutral score when no change
+    const failureRateScore = Math.max(
+      0,
+      Math.min(15, baseFailureScore + failureRateChangePercent * 0.75)
+    );
+    score += failureRateScore;
+
+    // Generate descriptive reasoning based on the change
+    if (failureRateChange > 0) {
       reasons.push(
-        `Significant failure rate reduction of ${(failureRateChange * 100).toFixed(2)}% (+15 points - major reliability improvement)`
-      );
-    } else if (failureRateChange > 0.01) {
-      score += 10;
-      reasons.push(
-        `Moderate failure rate reduction of ${(failureRateChange * 100).toFixed(2)}% (+10 points - good reliability improvement)`
-      );
-    } else if (failureRateChange > 0) {
-      score += 5;
-      reasons.push(
-        `Small failure rate reduction of ${(failureRateChange * 100).toFixed(2)}% (+5 points - minor reliability improvement)`
+        `Failure rate improvement of ${failureRateChangePercent.toFixed(2)}% (+${failureRateScore.toFixed(1)} points - reliability boost)`
       );
     } else if (failureRateChange === 0) {
-      score += 7;
-      reasons.push('No change in failure rate (+7 points - no additional risk)');
-    } else if (failureRateChange > -0.01) {
-      score += 3;
       reasons.push(
-        `Minor failure rate increase of ${(Math.abs(failureRateChange) * 100).toFixed(2)}% (+3 points - acceptable risk increase)`
+        `No change in failure rate (+${failureRateScore.toFixed(1)} points - neutral risk)`
       );
     } else {
       reasons.push(
-        `Significant failure rate increase of ${(Math.abs(failureRateChange) * 100).toFixed(2)}% (0 points - major risk increase)`
+        `Failure rate degradation of ${Math.abs(failureRateChangePercent).toFixed(2)}% (+${failureRateScore.toFixed(1)} points - reliability cost)`
       );
     }
 
@@ -416,12 +413,15 @@ export class ThroughputOptimizationCalculator {
 
     // Calculate failure impact
     const currentFailureRate = params.currentFailure / 100;
-    const bugFailureRate = params.bugFailure / 100;
+    const additionalBugFailureRate = params.bugFailure / 100;
+    const newFailureRate = currentFailureRate + additionalBugFailureRate;
     const currentFailedRequests = totalRequestsOverHorizon * currentFailureRate;
-    const bugFailedRequests = totalRequestsOverHorizon * bugFailureRate;
+    const newFailedRequests = totalRequestsOverHorizon * newFailureRate;
+    const additionalBugFailedRequests = totalRequestsOverHorizon * additionalBugFailureRate;
 
-    // Net failure change (positive means fewer failures)
-    const failureRateChange = (params.currentFailure - params.bugFailure) / 100;
+    // Net failure change (positive means fewer failures, negative means more failures)
+    // Since bugFailure is now additional failures on top of current, the change is negative
+    const failureRateChange = -additionalBugFailureRate;
 
     // Decision logic with confidence calculation
     const decision = this.makeDecision(
@@ -462,8 +462,9 @@ export class ThroughputOptimizationCalculator {
         roi: roi.toFixed(2),
         breakEvenYears: isFinite(breakEvenYears) ? breakEvenYears.toFixed(2) : '∞',
         currentFailedRequests: currentFailedRequests.toFixed(0),
-        bugFailedRequests: bugFailedRequests.toFixed(0),
-        netFailureChange: (currentFailedRequests - bugFailedRequests).toFixed(0),
+        newFailedRequests: newFailedRequests.toFixed(0),
+        additionalBugFailedRequests: additionalBugFailedRequests.toFixed(0),
+        netFailureChange: (currentFailedRequests - newFailedRequests).toFixed(0),
         failureRateChange: (failureRateChange * 100).toFixed(2),
         // Monetary metrics
         computeCostSavings: computeCostSavings.toFixed(2),
