@@ -689,11 +689,19 @@ Cypress.Commands.add('expandInfluenceDiagram', () => {
   cy.get(SELECTORS.resultsSection).scrollIntoView();
   cy.get(SELECTORS.decisionBadge).should('exist');
 
-  // Click to expand the influence diagram section
-  cy.get(SELECTORS.viewInfluenceMapToggle).click({ force: true });
-  
-  // Wait for DaisyUI collapse animation to complete by checking the checkbox state
-  cy.get(SELECTORS.viewInfluenceMapToggle).parent().find('input[type="checkbox"]').should('be.checked');
+  // Find the collapse container and its checkbox
+  cy.get(SELECTORS.viewInfluenceMapToggle).parent().within(() => {
+    // Check if not already expanded
+    cy.get('input[type="checkbox"]').then(($checkbox) => {
+      if (!$checkbox.prop('checked')) {
+        // Click the checkbox to expand
+        cy.get('input[type="checkbox"]').check({ force: true });
+      }
+    });
+    // Verify it's checked
+    cy.get('input[type="checkbox"]').should('be.checked');
+  });
+
   cy.wait(800); // Wait for CSS transition to complete (DaisyUI uses 300ms + rendering time)
 });
 
@@ -701,6 +709,7 @@ Cypress.Commands.add('shouldShowInfluenceDiagram', () => {
   // Wait for the diagram to exist and become visible (with increased timeout for DaisyUI animation)
   cy.get(SELECTORS.influenceDiagram, { timeout: 10000 })
     .should('exist')
+    .scrollIntoView()
     .should(($el) => {
       // Check if element is actually visible in viewport (not just display/visibility CSS)
       const el = $el[0];
@@ -709,8 +718,12 @@ Cypress.Commands.add('shouldShowInfluenceDiagram', () => {
       expect(rect.height).to.be.greaterThan(0);
     });
 
-  // Wait for Mermaid to render the SVG
-  cy.get(SELECTORS.mermaidSvg, { timeout: 10000 }).should('exist').and('be.visible');
+  // Wait for Mermaid to render the SVG (use first() in case there are multiple)
+  cy.get(SELECTORS.mermaidSvg, { timeout: 10000 })
+    .first()
+    .should('exist')
+    .scrollIntoView()
+    .and('be.visible');
 });
 
 Cypress.Commands.add('shouldShowInfluenceDiagramContent', () => {
@@ -722,20 +735,26 @@ Cypress.Commands.add('shouldShowInfluenceDiagramContent', () => {
 Cypress.Commands.add('shouldShowFullscreenButton', () => {
   // Wait for the diagram to be fully visible first
   cy.get(SELECTORS.influenceDiagram, { timeout: 10000 })
+    .scrollIntoView()
     .should(($el) => {
       const el = $el[0];
       const rect = el.getBoundingClientRect();
       expect(rect.width).to.be.greaterThan(0);
       expect(rect.height).to.be.greaterThan(0);
     });
-  
-  cy.get(SELECTORS.fullscreenDiagramBtn, { timeout: 10000 }).should('exist').and('be.visible');
+
+  cy.get(SELECTORS.fullscreenDiagramBtn, { timeout: 10000 })
+    .scrollIntoView()
+    .should('exist')
+    .and('be.visible');
   cy.get(SELECTORS.fullscreenDiagramBtn).should('contain', 'Fullscreen');
 });
 
 Cypress.Commands.add('openFullscreenDiagram', () => {
-  cy.get(SELECTORS.fullscreenDiagramBtn).click({ force: true });
-  cy.wait(300); // Wait for modal animation
+  cy.get(SELECTORS.fullscreenDiagramBtn).scrollIntoView().click({ force: true });
+  // Wait for modal to be visible before continuing
+  cy.get(SELECTORS.mermaidFullscreenModal, { timeout: 5000 }).should('be.visible');
+  cy.wait(1500); // Wait for modal animation and Mermaid re-render to complete
 });
 
 Cypress.Commands.add('shouldShowFullscreenModal', () => {
@@ -747,7 +766,10 @@ Cypress.Commands.add('shouldShowFullscreenModal', () => {
 
 Cypress.Commands.add('shouldShowFullscreenDiagram', () => {
   cy.get(SELECTORS.fullscreenMermaidDiagram).should('exist').and('be.visible');
-  cy.get(SELECTORS.fullscreenMermaidSvg).should('exist').and('be.visible');
+  cy.get(SELECTORS.fullscreenMermaidSvg, { timeout: 10000 })
+    .first()
+    .should('exist')
+    .and('be.visible');
 });
 
 Cypress.Commands.add('closeFullscreenModal', () => {

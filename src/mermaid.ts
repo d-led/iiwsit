@@ -353,6 +353,9 @@ export function openFullscreenDiagram(): void {
     return;
   }
 
+  // Clear any previous rendering state by removing data-processed attribute
+  fullscreenDiagram.removeAttribute('data-processed');
+
   // Get the original diagram text content (before rendering)
   const originalText = originalDiagram.getAttribute('data-original-text');
   if (originalText) {

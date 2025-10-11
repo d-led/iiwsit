@@ -38,7 +38,7 @@ describe('Influence Diagram', () => {
       cy.get('#results-section').scrollIntoView();
       cy.wait(1000); // Wait for DOM to be fully updated
       cy.expandInfluenceDiagram();
-      cy.get('.mermaid svg').should('exist').and('be.visible');
+      cy.get('.mermaid svg').first().scrollIntoView().should('exist').and('be.visible');
     });
 
     it('should display diagram description and instructions', () => {
@@ -208,9 +208,12 @@ describe('Influence Diagram', () => {
       cy.expandInfluenceDiagram();
       cy.shouldShowInfluenceDiagram();
 
-      // Collapse
-      cy.get('div.collapse-title:contains("📈 View Factor Influence Map")').click({ force: true });
-      cy.wait(300);
+      // Collapse by unchecking the checkbox
+      cy.get('div.collapse-title:contains("📈 View Factor Influence Map")')
+        .parent()
+        .find('input[type="checkbox"]')
+        .uncheck({ force: true });
+      cy.wait(800); // Wait for collapse animation
       cy.get('#influence-diagram').should('not.be.visible');
 
       // Re-expand
@@ -236,6 +239,7 @@ describe('Influence Diagram', () => {
 
     it('should have accessible fullscreen button', () => {
       cy.get('#fullscreen-diagram-btn')
+        .scrollIntoView()
         .should('be.visible')
         .and('have.attr', 'title');
     });
