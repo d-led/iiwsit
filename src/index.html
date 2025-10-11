@@ -538,10 +538,12 @@
                                 TTS tts2@==>|"increases (+)"| ROI_T["`ROI %
                                 Time-based`"]
                                 tts2@{ animate: true }
-                                TTS -->|"decreases (-)"| BE_T[Break-even<br/>Time-based]
+                                TTS -->|"decreases (-)"| BE_T["`Break-even
+                                Time-based`"]
 
                                 %% === COST PATH (Red - costs of optimization) ===
-                                IT ite@==>|"increases (+)"| TC_T[Total Cost<br/>Time-based]
+                                IT ite@==>|"increases (+)"| TC_T["`Total Cost
+                                Time-based`"]
                                 ite@{ animate: true }
                                 MT mte@==>|"increases (+)"| TC_T
                                 mte@{ animate: true }
@@ -554,12 +556,14 @@
                                 tc_t@{ animate: true }
 
                                 %% === MONETARY PATH (Purple - financial impact) ===
-                                TTS tts3@==>|"increases (+)"| CCS[Compute Cost<br/>Savings]
+                                TTS tts3@==>|"increases (+)"| CCS["`Compute Cost
+                                Savings`"]
                                 tts3@{ animate: true }
                                 CC cc@==>|"increases (+)"| CCS
                                 cc@{ animate: true }
 
-                                IT ite2@==>|"increases (+)"| TC_M[Total Cost<br/>Money-based]
+                                IT ite2@==>|"increases (+)"| TC_M["`Total Cost
+                                Money-based`"]
                                 ite2@{ animate: true }
                                 MT mte2@==>|"increases (+)"| TC_M
                                 mte2@{ animate: true }
@@ -573,8 +577,9 @@
                                 ccs@{ animate: true }
                                 TC_M -->|"decreases (-)"| NB_M
 
-                                NB_M ==>|"increases (+)"| ROI_M["`ROI %
+                                NB_M nbme@==>|"increases (+)"| ROI_M["`ROI %
                                 Money-based`"]
+                                nbme@{ animate: true }
                                 TC_M -->|"decreases (-)"| ROI_M
 
                                 NB_M -->|"decreases (-)"| BE_M["`Break-even
