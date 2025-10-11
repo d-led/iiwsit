@@ -276,7 +276,7 @@ export function createFullscreenModal(): void {
               <p class="text-gray-600">This may take a few seconds</p>
             </div>
           </div>
-          
+
           <div id="fullscreen-mermaid-container" class="w-full h-full bg-white">
             <div id="fullscreen-mermaid-diagram" class="mermaid w-full h-full">
             </div>
@@ -341,7 +341,7 @@ function closeFullscreenDiagram(): void {
 
   modal.classList.add('hidden');
   document.body.style.overflow = ''; // Restore scrolling
-  
+
   // Clear the fullscreen diagram content to allow re-rendering
   const fullscreenDiagram = document.getElementById('fullscreen-mermaid-diagram');
   if (fullscreenDiagram) {
@@ -429,7 +429,7 @@ export function openFullscreenDiagram(): void {
         });
 
         console.log('Fullscreen diagram rendered');
-        
+
         // Hide loading overlay after successful render
         if (loadingOverlay) {
           loadingOverlay.style.display = 'none';
@@ -522,34 +522,34 @@ export function setupMermaidExpansion(): void {
 export function checkAndOpenDiagramFromHash(): void {
   if (window.location.hash.includes('diagram')) {
     console.log('Detected #diagram in URL, will open fullscreen when diagram is ready...');
-    
+
     // Wait for results to be available first
     const checkResultsReady = () => {
       const resultsSection = document.getElementById('results-section');
       const resultsVisible = resultsSection && resultsSection.style.display !== 'none';
-      
+
       if (!resultsVisible) {
         console.log('Waiting for calculation results...');
         setTimeout(checkResultsReady, 200);
         return;
       }
-      
+
       // Results are ready, now expand the influence diagram section if it's collapsed
       const detailsElements = document.querySelectorAll('details');
       const influenceDiagramDetails = Array.from(detailsElements).find((details) =>
         details.textContent?.includes('Factor Influence Map')
       );
-      
+
       if (influenceDiagramDetails && !influenceDiagramDetails.open) {
         console.log('Expanding influence diagram section...');
         influenceDiagramDetails.open = true;
       }
-      
+
       // Wait for the original diagram to be rendered first
       const checkDiagramReady = () => {
         const originalDiagram = document.getElementById('influence-diagram');
         const originalText = originalDiagram?.getAttribute('data-original-text');
-        
+
         if (originalText) {
           console.log('Original diagram is ready, opening fullscreen...');
           openFullscreenDiagram();
@@ -558,11 +558,11 @@ export function checkAndOpenDiagramFromHash(): void {
           setTimeout(checkDiagramReady, 200);
         }
       };
-      
+
       // Start checking after a short delay to allow for section expansion animation
       setTimeout(checkDiagramReady, 500);
     };
-    
+
     // Start checking for results
     setTimeout(checkResultsReady, 300);
   }
