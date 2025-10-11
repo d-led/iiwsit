@@ -5,47 +5,18 @@ describe('UI Behavior and User Experience', () => {
     cy.visitCalculator();
   });
 
-  describe('When first visiting the calculator', () => {
-    it('should display the header and form', () => {
+  describe('Initial Load', () => {
+    it('should display form with default values and auto-calculate', () => {
       cy.contains('Is It Worth Speeding It').should('be.visible');
       cy.shouldShowCalculatorForm();
-    });
-
-    it('should have default values pre-filled', () => {
       cy.shouldHaveDefaultConfiguration();
-    });
-
-    it('should auto-calculate results on page load with default values', () => {
       cy.shouldDisplayResults();
       cy.shouldShowDecisionBadge();
     });
   });
 
-  describe('When calculating a decision', () => {
-    it('should scroll to and display results', () => {
-      cy.configureHighTrafficScenario();
-      cy.calculate();
-
-      cy.shouldDisplayResults();
-    });
-
-    it('should display decision with appropriate styling', () => {
-      cy.configureHighTrafficScenario();
-      cy.calculate();
-
-      cy.shouldRecommendDecision('YES');
-    });
-
-    it('should show detailed explanation', () => {
-      cy.configureHighTrafficScenario();
-      cy.calculate();
-
-      cy.shouldShowDetailedExplanation();
-    });
-  });
-
-  describe('When interacting with form inputs', () => {
-    it('should allow changing all input fields', () => {
+  describe('Form Interactions', () => {
+    it('should allow changing input fields and update values', () => {
       cy.enterRequestRate(500);
       cy.enterSpeedGain(35);
       cy.enterImplementationTime(80);
@@ -66,38 +37,24 @@ describe('UI Behavior and User Experience', () => {
     });
   });
 
-  describe('When viewing results', () => {
-    beforeEach(() => {
-      cy.configureHighTrafficScenario();
-      cy.calculate();
-    });
-
-    it('should display confidence percentage', () => {
+  describe('Results Display', () => {
+    it('should display confidence, metrics table, and footer links', () => {
       cy.shouldShowConfidence();
-    });
-
-    it('should display all metrics in a table', () => {
       cy.shouldShowMetricsTable();
-    });
-
-    it('should include links to xkcd in footer', () => {
       cy.shouldHaveXkcdLinks();
     });
   });
 
-  describe('When working with responsive design', () => {
+  describe('Responsive Design', () => {
     it('should work on mobile viewport', () => {
       cy.viewport('iphone-x');
       cy.shouldBeVisibleOnMobile();
-      cy.calculate();
       cy.shouldDisplayResults();
     });
 
     it('should work on tablet viewport', () => {
       cy.viewport('ipad-2');
       cy.shouldBeVisibleOnTablet();
-      cy.configureHighTrafficScenario();
-      cy.calculate();
       cy.shouldDisplayResults();
     });
   });

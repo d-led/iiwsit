@@ -3,16 +3,9 @@ describe('Version Display', () => {
     cy.visit('/');
   });
 
-  it('should display version in footer', () => {
-    cy.shouldDisplayVersion();
-  });
-
-  it('version should be visible in the footer', () => {
+  it('should display version in footer with correct format', () => {
     cy.scrollToResults(); // Scroll to ensure footer is in view
     cy.shouldDisplayVersion();
-  });
-
-  it('version should have correct format', () => {
     cy.shouldHaveVersionFormat();
   });
 });
