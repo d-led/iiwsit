@@ -157,54 +157,6 @@
                   </label>
                 </div>
 
-                <!-- Current Request Failure Rate -->
-                <div class="form-control">
-                  <label class="label">
-                    <span class="label-text font-semibold text-sm sm:text-base"
-                      >Current Request Failure Rate:
-                      <span id="current-failure-value" class="text-primary">5%</span></span
-                    >
-                  </label>
-                  <input
-                    type="range"
-                    id="current-failure"
-                    class="range range-primary w-full"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value="5"
-                  />
-                  <label class="label">
-                    <span class="label-text-alt text-xs sm:text-sm"
-                      >Percentage of requests that fail or miss deadlines now</span
-                    >
-                  </label>
-                </div>
-
-                <!-- Additional Bug-Induced Failure Rate -->
-                <div class="form-control">
-                  <label class="label">
-                    <span class="label-text font-semibold text-sm sm:text-base"
-                      >Additional Bug-Induced Failure Rate:
-                      <span id="bug-failure-value" class="text-primary">1%</span></span
-                    >
-                  </label>
-                  <input
-                    type="range"
-                    id="bug-failure"
-                    class="range range-primary w-full"
-                    min="0"
-                    max="100"
-                    step="1"
-                    value="1"
-                  />
-                  <label class="label">
-                    <span class="label-text-alt text-xs sm:text-sm"
-                      >Extra failure rate added on top of current rate due to bugs in optimization</span
-                    >
-                  </label>
-                </div>
-
                 <!-- Maintenance Time -->
                 <div class="form-control">
                   <label class="label">
@@ -309,7 +261,8 @@
                     type="number"
                     id="compute-cost"
                     class="input input-bordered w-full"
-                    placeholder="0.50"
+                    placeholder="0
+                    .50"
                     value="0.50"
                     min="0"
                     step="0.01"
@@ -549,96 +502,138 @@
                       <div class="collapse-content">
                         <div class="pt-4">
                           <p class="text-sm text-base-content/70 mb-6">
-                            This diagram shows how all factors interact to influence the final optimization decision.
-                            Green arrows indicate positive influence, red arrows indicate negative influence, and orange nodes are critical leverage points.
+                            This diagram shows how all input parameters flow through calculations to produce the final decision.
+                            Arrows show directional influence: <strong>increases (+)</strong> or <strong>decreases (-)</strong>.
+                            The <strong>Optimization Preference</strong> slider controls weighting between cost-focused and throughput-focused metrics.
                           </p>
 
                           <div class="bg-base-100 p-4 rounded-lg border">
                             <div id="influence-diagram" class="mermaid">
                               graph TD
-                                %% Input Factors
-                                RR[Request Rate] --> TTS[Total Time Saved]
-                                SG[Speed Gain %] --> TTS
-                                RD[Request Duration] --> TTS
-                                TH[Time Horizon] --> TTS
-                                TH --> TTC[Total Cost]
+                                %% === INPUT PARAMETERS (Blue) ===
+                                RR[Request Rate]
+                                RD[Request Duration]
+                                SG[Speed Gain %]
+                                TH[Time Horizon]
+                                IT[Implementation Time]
+                                MT[Maintenance Time]
+                                CC[Compute Cost/Hour]
+                                DR[Developer Hourly Rate]
+                                OP[⚖️ Optimization Preference<br/>Slider]
 
-                                %% Cost Factors
-                                IT[Implementation Time] --> TTC
-                                MT[Maintenance Time] --> TTC
-                                DR[Developer Rate] --> TCM[Total Cost Money]
-                                TTC --> TCM
-                                TTC --> NB[Net Benefit Time]
+                                %% === THROUGHPUT PATH (Green - benefits from optimization) ===
+                                RR -->|"increases (+)"| TTS[Total Time Saved]
+                                RD -->|"increases (+)"| TTS
+                                SG -->|"increases (+)"| TTS
+                                TH -->|"increases (+)"| TTS
 
-                                %% Financial Calculations
-                                TTS --> NBM[Net Benefit Money]
-                                TTS --> CCS[Compute Cost Savings]
-                                CC[Compute Cost/Hour] --> CCS
-                                CCS --> NBM
-                                TCM --> NBM
-                                TCM --> ROIM[ROI Money]
-                                NBM --> ROIM
+                                TTS -->|"increases (+)"| NB_T[Net Benefit<br/>Time-based]
+                                TTS -->|"increases (+)"| ROI_T[ROI %<br/>Time-based]
+                                TTS -->|"decreases (-)"| BE_T[Break-even<br/>Time-based]
 
-                                %% Time-based Calculations
-                                TTS --> NB
-                                TTC --> NB
-                                NB --> ROIT[ROI Time]
-                                TTC --> ROIT
+                                %% === COST PATH (Red - costs of optimization) ===
+                                IT -->|"increases (+)"| TC_T[Total Cost<br/>Time-based]
+                                MT -->|"increases (+)"| TC_T
+                                TH -->|"increases (+)"| TC_T
 
-                                %% Risk Factors
-                                CFR[Current Failure Rate] --> FRC[Failure Rate Change]
-                                ABFR[Additional Bug Failure Rate] --> FRC
-                                FRC --> DC[Decision Confidence]
+                                TC_T -->|"decreases (-)"| NB_T
+                                TC_T -->|"decreases (-)"| ROI_T
+                                TC_T -->|"increases (+)"| BE_T
 
-                                %% Decision Making
-                                NBM --> DC
-                                NB --> DC
-                                ROIM --> DC
-                                ROIT --> DC
-                                OP[Optimization Preference] --> DC
-                                DC --> FD[Final Decision]
+                                %% === MONETARY PATH (Purple - financial impact) ===
+                                TTS -->|"increases (+)"| CCS[Compute Cost<br/>Savings]
+                                CC -->|"increases (+)"| CCS
 
-                                %% Break-even calculations
-                                NBM --> BET[Break-even Time]
-                                TCM --> BET
+                                IT -->|"increases (+)"| TC_M[Total Cost<br/>Money-based]
+                                MT -->|"increases (+)"| TC_M
+                                DR -->|"increases (+)"| TC_M
+                                TH -->|"increases (+)"| TC_M
 
-                                %% Styling
-                                classDef inputFactor fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-                                classDef costFactor fill:#ffebee,stroke:#c62828,stroke-width:2px
-                                classDef benefitFactor fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
-                                classDef riskFactor fill:#fff3e0,stroke:#ef6c00,stroke-width:2px
-                                classDef calculation fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-                                classDef decision fill:#ffeb3b,stroke:#f57f17,stroke-width:3px
-                                classDef leverage fill:#ff9800,stroke:#e65100,stroke-width:3px
+                                CCS -->|"increases (+)"| NB_M[Net Benefit<br/>Money-based]
+                                TC_M -->|"decreases (-)"| NB_M
 
-                                class RR,SG,RD,TH inputFactor
-                                class IT,MT,DR,TTC,TCM costFactor
-                                class TTS,CCS,NB,NBM benefitFactor
-                                class CFR,ABFR,FRC riskFactor
-                                class ROIM,ROIT,BET calculation
-                                class FD decision
+                                NB_M -->|"increases (+)"| ROI_M[ROI %<br/>Money-based]
+                                TC_M -->|"decreases (-)"| ROI_M
+
+                                NB_M -->|"decreases (-)"| BE_M[Break-even<br/>Money-based]
+                                TC_M -->|"increases (+)"| BE_M
+
+                                %% === DECISION LOGIC (Yellow - weighted by preference) ===
+                                NB_T -->|"`weighted by
+                                throughput %`"| DC[DecisionConfidence]
+                                ROI_T -->|"`weighted by
+                                throughput %`"| DC
+                                BE_T -->|"`weighted by
+                                throughput %`"| DC
+
+                                NB_M -->|"`weighted by
+                                cost %`"| DC
+                                ROI_M -->|"`weighted by
+                                cost %`"| DC
+                                BE_M -->|"`weighted by
+                                cost %`"| DC
+
+                                SG -->|"`small fixed
+                                weight`"| DC
+
+                                OP -->|"`determines
+                                metric weights`"| DC
+                                DC -->|"`High confidence → YES
+                                Medium confidence → MAYBE
+                                Low confidence → NO`"| FD[📊 Recommendation]
+
+                                %% === STYLING ===
+                                classDef inputParam fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#000
+                                classDef throughput fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px,color:#000
+                                classDef cost fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#000
+                                classDef money fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+                                classDef decision fill:#fff9c4,stroke:#f57f17,stroke-width:3px,color:#000
+                                classDef finalDecision fill:#ffeb3b,stroke:#f57f17,stroke-width:4px,color:#000
+                                classDef leverage fill:#ff9800,stroke:#e65100,stroke-width:3px,color:#000
+
+                                class RR,RD,SG,TH,IT,MT,CC,DR inputParam
+                                class TTS,NB_T,ROI_T,BE_T throughput
+                                class TC_T cost
+                                class CCS,NB_M,ROI_M,BE_M,TC_M money
+                                class DC decision
+                                class FD finalDecision
                                 class OP leverage
                             </div>
                           </div>
 
                           <div class="mt-6 space-y-4">
                             <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
-                              <h4 class="font-semibold text-blue-800 mb-2">🎯 Key Success Factors</h4>
+                              <h4 class="font-semibold text-blue-800 mb-2">📊 Diagram Legend</h4>
                               <ul class="text-sm text-blue-700 space-y-1">
-                                <li><strong>Request Rate Amplification:</strong> High traffic creates exponential value from speed improvements</li>
-                                <li><strong>Time Horizon Leverage:</strong> Longer horizons allow modest optimizations to accumulate substantial value</li>
-                                <li><strong>Optimization Preference:</strong> Master control lever that weights cost vs. throughput priorities</li>
+                                <li><strong>Blue nodes:</strong> Input parameters you control</li>
+                                <li><strong>Green nodes:</strong> Time/throughput benefits (weighted more when slider → Throughput)</li>
+                                <li><strong>Red nodes:</strong> Time costs of implementing optimization</li>
+                                <li><strong>Purple nodes:</strong> Financial metrics (weighted more when slider → Cost)</li>
+                                <li><strong>Orange node:</strong> Optimization Preference slider - controls metric weighting</li>
+                                <li><strong>Yellow node:</strong> Decision confidence based on weighted scoring</li>
+                              </ul>
+                            </div>
+
+                            <div class="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-400">
+                              <h4 class="font-semibold text-orange-800 mb-2">⚖️ How the Preference Slider Works</h4>
+                              <ul class="text-sm text-orange-700 space-y-1">
+                                <li><strong>💰 Cost-focused (0-33):</strong> Prioritizes financial ROI, money-based metrics get 100% weight, time-based get 0%</li>
+                                <li><strong>⚖️ Balanced (34-66):</strong> Considers both financial and throughput benefits equally, 50/50 weighting</li>
+                                <li><strong>⚡ Throughput-focused (67-100):</strong> Prioritizes speed improvements, time-based metrics get 100% weight, money-based get 0%</li>
+                                <li><strong>Decision threshold:</strong> Confidence ≥60% = YES, 40-60% = MAYBE, &lt;40% = NO</li>
                               </ul>
                             </div>
 
                             <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-400">
-                              <h4 class="font-semibold text-green-800 mb-2">🔄 Critical Feedback Loops</h4>
+                              <h4 class="font-semibold text-green-800 mb-2">🎯 Key Insights</h4>
                               <ul class="text-sm text-green-700 space-y-1">
-                                <li><strong>High Traffic Loop:</strong> More requests → More time saved → Higher benefits → Better decisions</li>
-                                <li><strong>Cost Efficiency Loop:</strong> Lower costs → Better ROI → Higher confidence → Stronger recommendations</li>
-                                <li><strong>Risk vs Reward:</strong> Failure rate changes directly impact decision confidence and reliability</li>
+                                <li><strong>Compounding effect:</strong> Higher request rate + longer time horizon = exponential benefit growth</li>
+                                <li><strong>Break-even dynamics:</strong> Lower costs and higher benefits both reduce break-even time (faster payback)</li>
+                                <li><strong>Speed gain impact:</strong> Affects both direct time savings AND compute cost savings</li>
+                                <li><strong>Trade-off clarity:</strong> Use the slider to see how your priorities affect the recommendation</li>
                               </ul>
-                            </div>                          </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

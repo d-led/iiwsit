@@ -11,8 +11,6 @@ describe('Throughput Optimization Decision Calculator', () => {
     duration: 500,
     durationUnit: 'millisecond',
     speedGain: 20,
-    currentFailure: 5,
-    bugFailure: 1,
     maintenance: 2,
     maintenanceUnit: 'hour-per-week',
     implementationTime: 40,

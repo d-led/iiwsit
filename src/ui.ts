@@ -265,12 +265,6 @@ function buildComputeResourcesGroup(metrics: CalculationResult['metrics']) {
         isPositive: parseFloat(metrics.roi) > 0,
       },
       { label: 'Break-Even Time (Time-based)', value: humanizeYears(metrics.breakEvenYears) },
-      {
-        label: 'Failure Rate Change',
-        value: `${parseFloat(metrics.failureRateChange) >= 0 ? '+' : ''}${metrics.failureRateChange}%`,
-        colored: true,
-        isPositive: parseFloat(metrics.failureRateChange) >= 0,
-      },
     ],
   };
 }

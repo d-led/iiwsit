@@ -11,8 +11,6 @@ export interface CalculatorParams {
   duration: number;
   durationUnit: TimeUnit;
   speedGain: number;
-  currentFailure: number;
-  bugFailure: number;
   maintenance: number;
   maintenanceUnit: MaintenanceUnit;
   implementationTime: number;
@@ -38,11 +36,6 @@ export interface CalculationMetrics {
   netBenefit: string;
   roi: string;
   breakEvenYears: string;
-  currentFailedRequests: string;
-  newFailedRequests: string;
-  additionalBugFailedRequests: string;
-  netFailureChange: string;
-  failureRateChange: string;
   // Monetary metrics
   computeCostSavings: string;
   implementationCostMoney: string;
@@ -58,7 +51,6 @@ export interface DecisionFactors {
   roi: number;
   breakEvenYears: number;
   timeHorizonYears: number;
-  failureRateChange: number;
   speedGainFraction: number;
   totalTimeSaved: number;
   totalCost: number;

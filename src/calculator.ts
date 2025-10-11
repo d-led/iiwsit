@@ -84,7 +84,6 @@ export class ThroughputOptimizationCalculator {
   ): DecisionResult {
     const {
       timeHorizonYears,
-      failureRateChange,
       speedGainFraction,
       netBenefit,
       roi,
@@ -275,35 +274,7 @@ export class ThroughputOptimizationCalculator {
       reasons.push('Never breaks even on time (0 points - infinite payback time)');
     }
 
-    // Factor 4: Failure rate impact (15 points max)
-    // Formula-based scoring: neutral point at 0% change (7.5 points)
-    // Linear scaling: each 1% improvement adds 0.75 points, each 1% degradation removes 0.75 points
-    // Bounded between 0 and 15 points
-    maxScore += 15;
-    const failureRateChangePercent = failureRateChange * 100;
-    const baseFailureScore = 7.5; // Neutral score when no change
-    const failureRateScore = Math.max(
-      0,
-      Math.min(15, baseFailureScore + failureRateChangePercent * 0.75)
-    );
-    score += failureRateScore;
-
-    // Generate descriptive reasoning based on the change
-    if (failureRateChange > 0) {
-      reasons.push(
-        `Failure rate improvement of ${failureRateChangePercent.toFixed(2)}% (+${failureRateScore.toFixed(1)} points - reliability boost)`
-      );
-    } else if (failureRateChange === 0) {
-      reasons.push(
-        `No change in failure rate (+${failureRateScore.toFixed(1)} points - neutral risk)`
-      );
-    } else {
-      reasons.push(
-        `Failure rate degradation of ${Math.abs(failureRateChangePercent).toFixed(2)}% (+${failureRateScore.toFixed(1)} points - reliability cost)`
-      );
-    }
-
-    // Factor 5: Speed gain magnitude (10 points)
+    // Factor 4: Speed gain magnitude (10 points)
     maxScore += 10;
     if (speedGainFraction > 0.5) {
       score += 10;
@@ -411,18 +382,6 @@ export class ThroughputOptimizationCalculator {
     const breakEvenYearsMoney =
       computeCostSavings > 0 ? totalCostMoney / (computeCostSavings / timeHorizonYears) : Infinity;
 
-    // Calculate failure impact
-    const currentFailureRate = params.currentFailure / 100;
-    const additionalBugFailureRate = params.bugFailure / 100;
-    const newFailureRate = currentFailureRate + additionalBugFailureRate;
-    const currentFailedRequests = totalRequestsOverHorizon * currentFailureRate;
-    const newFailedRequests = totalRequestsOverHorizon * newFailureRate;
-    const additionalBugFailedRequests = totalRequestsOverHorizon * additionalBugFailureRate;
-
-    // Net failure change (positive means fewer failures, negative means more failures)
-    // Since bugFailure is now additional failures on top of current, the change is negative
-    const failureRateChange = -additionalBugFailureRate;
-
     // Decision logic with confidence calculation
     const decision = this.makeDecision(
       {
@@ -430,7 +389,6 @@ export class ThroughputOptimizationCalculator {
         roi,
         breakEvenYears,
         timeHorizonYears,
-        failureRateChange,
         speedGainFraction,
         totalTimeSaved,
         totalCost,
@@ -461,11 +419,6 @@ export class ThroughputOptimizationCalculator {
         netBenefit: netBenefit.toFixed(2),
         roi: roi.toFixed(2),
         breakEvenYears: isFinite(breakEvenYears) ? breakEvenYears.toFixed(2) : '∞',
-        currentFailedRequests: currentFailedRequests.toFixed(0),
-        newFailedRequests: newFailedRequests.toFixed(0),
-        additionalBugFailedRequests: additionalBugFailedRequests.toFixed(0),
-        netFailureChange: (currentFailedRequests - newFailedRequests).toFixed(0),
-        failureRateChange: (failureRateChange * 100).toFixed(2),
         // Monetary metrics
         computeCostSavings: computeCostSavings.toFixed(2),
         implementationCostMoney: implementationCostMoney.toFixed(2),

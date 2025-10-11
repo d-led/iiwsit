@@ -36,10 +36,6 @@ function loadSettings(): void {
   (document.getElementById('duration') as HTMLInputElement).value = settings.duration.toString();
   (document.getElementById('duration-unit') as HTMLSelectElement).value = settings.durationUnit;
   (document.getElementById('speed-gain') as HTMLInputElement).value = settings.speedGain.toString();
-  (document.getElementById('current-failure') as HTMLInputElement).value =
-    settings.currentFailure.toString();
-  (document.getElementById('bug-failure') as HTMLInputElement).value =
-    settings.bugFailure.toString();
   (document.getElementById('maintenance') as HTMLInputElement).value =
     settings.maintenance.toString();
   (document.getElementById('maintenance-unit') as HTMLSelectElement).value =
@@ -79,10 +75,6 @@ function gatherFormParams(): CalculatorParams {
     duration: parseFloat((document.getElementById('duration') as HTMLInputElement).value),
     durationUnit: (document.getElementById('duration-unit') as HTMLSelectElement).value as any,
     speedGain: parseFloat((document.getElementById('speed-gain') as HTMLInputElement).value),
-    currentFailure: parseFloat(
-      (document.getElementById('current-failure') as HTMLInputElement).value
-    ),
-    bugFailure: parseFloat((document.getElementById('bug-failure') as HTMLInputElement).value),
     maintenance: parseFloat((document.getElementById('maintenance') as HTMLInputElement).value),
     maintenanceUnit: (document.getElementById('maintenance-unit') as HTMLSelectElement)
       .value as any,
@@ -117,25 +109,7 @@ function resetToDefaults(): void {
  * Update slider value displays (called when loading settings)
  */
 function updateSliderDisplays(): void {
-  updateCurrentFailureDisplay();
-  updateBugFailureDisplay();
   updateOptimizationPreferenceDisplay();
-}
-
-function updateCurrentFailureDisplay(): void {
-  const slider = document.getElementById('current-failure') as HTMLInputElement;
-  const valueDisplay = document.getElementById('current-failure-value') as HTMLSpanElement;
-  if (slider && valueDisplay) {
-    valueDisplay.textContent = `${slider.value}%`;
-  }
-}
-
-function updateBugFailureDisplay(): void {
-  const slider = document.getElementById('bug-failure') as HTMLInputElement;
-  const valueDisplay = document.getElementById('bug-failure-value') as HTMLSpanElement;
-  if (slider && valueDisplay) {
-    valueDisplay.textContent = `${slider.value}%`;
-  }
 }
 
 function updateOptimizationPreferenceDisplay(): void {
@@ -302,37 +276,7 @@ function setupAutoCalculation(): void {
  * Updates display labels as user drags sliders
  */
 function setupSliderDisplays(): void {
-  setupCurrentFailureSlider();
-  setupBugFailureSlider();
   setupOptimizationPreferenceSlider();
-}
-
-/**
- * Setup current failure rate slider display
- */
-function setupCurrentFailureSlider(): void {
-  const slider = document.getElementById('current-failure') as HTMLInputElement;
-  const valueDisplay = document.getElementById('current-failure-value') as HTMLSpanElement;
-
-  if (slider && valueDisplay) {
-    slider.addEventListener('input', () => {
-      valueDisplay.textContent = `${slider.value}%`;
-    });
-  }
-}
-
-/**
- * Setup bug failure rate slider display
- */
-function setupBugFailureSlider(): void {
-  const slider = document.getElementById('bug-failure') as HTMLInputElement;
-  const valueDisplay = document.getElementById('bug-failure-value') as HTMLSpanElement;
-
-  if (slider && valueDisplay) {
-    slider.addEventListener('input', () => {
-      valueDisplay.textContent = `${slider.value}%`;
-    });
-  }
 }
 
 /**
