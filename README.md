@@ -73,4 +73,4 @@ Contributions welcome! Please:
 
 ---
 
-Made with ❤️ and inspired by xkcd. Because not all optimizations are worth optimizing.
+Made with ❤️ and inspired by [xkcd #1205](https://xkcd.com/1205/). Because not all optimizations are worth doing.
