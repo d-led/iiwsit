@@ -18,7 +18,7 @@ describe('KaTeX Formula Rendering', () => {
 
   it('should render formulas with data attributes', () => {
     cy.expandMathFormulas();
-    cy.shouldHaveFormulaDataAttributes(10);
+    cy.shouldHaveFormulaDataAttributes(9);
   });
 
   it('should have larger rendered formulas (2x size)', () => {

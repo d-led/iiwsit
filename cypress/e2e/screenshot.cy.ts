@@ -128,8 +128,6 @@ describe('Screenshot Tests - Visual Regression', () => {
       cy.enterRequestRate(50, 'second');
       cy.enterRequestDuration(200, 'millisecond');
       cy.enterSpeedGain(15);
-      cy.enterCurrentFailureRate(3);
-      cy.enterBugFailureRate(2);
       cy.enterMaintenanceTime(1, 'hour-per-week');
       cy.enterImplementationTime(200);
       cy.enterTimeHorizon(1, 'year');

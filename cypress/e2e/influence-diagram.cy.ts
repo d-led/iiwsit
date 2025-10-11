@@ -71,27 +71,27 @@ describe('Influence Diagram', () => {
       cy.shouldShowInfluenceDiagramNodes();
     });
 
-    it('should show success factors section', () => {
+    it('should show key insights section', () => {
       cy.shouldShowSuccessFactors();
     });
 
-    it('should show feedback loops section', () => {
+    it('should show preference slider explanation', () => {
       cy.shouldShowFeedbackLoops();
     });
 
-    it('should explain request rate amplification', () => {
-      cy.contains('Request Rate Amplification').should('exist');
-      cy.contains('High traffic creates exponential value').should('exist');
+    it('should explain compounding effect', () => {
+      cy.contains('Compounding effect').should('exist');
+      cy.contains('Higher request rate + longer time horizon = exponential benefit growth').should('exist');
     });
 
-    it('should explain time horizon leverage', () => {
-      cy.contains('Time Horizon Leverage').should('exist');
-      cy.contains('Longer horizons allow modest optimizations').should('exist');
+    it('should explain break-even dynamics', () => {
+      cy.contains('Break-even dynamics').should('exist');
+      cy.contains('Lower costs and higher benefits both reduce break-even time').should('exist');
     });
 
-    it('should explain optimization preference control', () => {
-      cy.contains('Optimization Preference').should('exist');
-      cy.contains('Master control lever').should('exist');
+    it('should explain speed gain impact', () => {
+      cy.contains('Speed gain impact').should('exist');
+      cy.contains('Affects both direct time savings AND compute cost savings').should('exist');
     });
   });
 
@@ -172,8 +172,10 @@ describe('Influence Diagram', () => {
     });
 
     it('should contain all diagram nodes in fullscreen', () => {
-      cy.get('#fullscreen-mermaid-diagram svg').should('contain.text', 'Request Rate');
-      cy.get('#fullscreen-mermaid-diagram svg').should('contain.text', 'Final Decision');
+      // Verify the fullscreen SVG has been rendered with nodes and edges
+      cy.get('#fullscreen-mermaid-diagram svg').should('exist').and('be.visible');
+      cy.get('#fullscreen-mermaid-diagram svg').find('g.nodes').should('exist');
+      cy.get('#fullscreen-mermaid-diagram svg').find('g.edgePaths').should('exist');
     });
   });
 

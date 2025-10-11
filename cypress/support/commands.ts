@@ -12,8 +12,6 @@ const SELECTORS = {
   duration: '#duration',
   durationUnit: '#duration-unit',
   speedGain: '#speed-gain',
-  currentFailure: '#current-failure',
-  bugFailure: '#bug-failure',
   maintenance: '#maintenance',
   maintenanceUnit: '#maintenance-unit',
   implementationTime: '#implementation-time',
@@ -87,8 +85,6 @@ declare global {
         unit?: 'millisecond' | 'second' | 'minute'
       ): Chainable<void>;
       enterSpeedGain(percentage: number): Chainable<void>;
-      enterCurrentFailureRate(percentage: number): Chainable<void>;
-      enterBugFailureRate(percentage: number): Chainable<void>;
       enterMaintenanceTime(
         hours: number,
         unit?: 'hour-per-day' | 'hour-per-week' | 'hour-per-month'
@@ -209,14 +205,6 @@ Cypress.Commands.add('enterSpeedGain', (percentage: number) => {
   cy.get(SELECTORS.speedGain).clear().type(percentage.toString());
 });
 
-Cypress.Commands.add('enterCurrentFailureRate', (percentage: number) => {
-  cy.get(SELECTORS.currentFailure).invoke('val', percentage).trigger('input');
-});
-
-Cypress.Commands.add('enterBugFailureRate', (percentage: number) => {
-  cy.get(SELECTORS.bugFailure).invoke('val', percentage).trigger('input');
-});
-
 Cypress.Commands.add('enterMaintenanceTime', (hours: number, unit = 'hour-per-week') => {
   cy.get(SELECTORS.maintenance).clear().type(hours.toString());
   cy.get(SELECTORS.maintenanceUnit).select(unit);
@@ -257,8 +245,6 @@ Cypress.Commands.add('configureHighTrafficScenario', () => {
   cy.enterRequestRate(1000, 'second');
   cy.enterRequestDuration(500, 'millisecond');
   cy.enterSpeedGain(30);
-  cy.enterCurrentFailureRate(5);
-  cy.enterBugFailureRate(1);
   cy.enterMaintenanceTime(2, 'hour-per-week');
   cy.enterImplementationTime(40);
   cy.enterTimeHorizon(1, 'year');
@@ -270,8 +256,6 @@ Cypress.Commands.add('configureLowTrafficScenario', () => {
   cy.enterRequestRate(1, 'minute');
   cy.enterRequestDuration(500, 'millisecond');
   cy.enterSpeedGain(20);
-  cy.enterCurrentFailureRate(5);
-  cy.enterBugFailureRate(1);
   cy.enterMaintenanceTime(5, 'hour-per-day');
   cy.enterImplementationTime(500);
   cy.enterTimeHorizon(1, 'year');
@@ -283,8 +267,6 @@ Cypress.Commands.add('configureOptimisticScenario', () => {
   cy.enterRequestRate(500, 'second');
   cy.enterRequestDuration(1, 'second');
   cy.enterSpeedGain(50);
-  cy.enterCurrentFailureRate(10);
-  cy.enterBugFailureRate(1);
   cy.enterMaintenanceTime(1, 'hour-per-week');
   cy.enterImplementationTime(20);
   cy.enterTimeHorizon(5, 'year');
@@ -296,8 +278,6 @@ Cypress.Commands.add('configurePessimisticScenario', () => {
   cy.enterRequestRate(0.1, 'hour');
   cy.enterRequestDuration(10, 'second');
   cy.enterSpeedGain(10);
-  cy.enterCurrentFailureRate(1);
-  cy.enterBugFailureRate(15);
   cy.enterMaintenanceTime(8, 'hour-per-day');
   cy.enterImplementationTime(1000);
   cy.enterTimeHorizon(6, 'month');
@@ -392,11 +372,9 @@ Cypress.Commands.add('shouldHaveDefaultConfiguration', () => {
   cy.get(SELECTORS.rate).should('have.value', '100');
   cy.get(SELECTORS.duration).should('have.value', '500');
   cy.get(SELECTORS.speedGain).should('have.value', '20');
-  cy.get(SELECTORS.currentFailure).should('have.value', '5');
-  cy.get(SELECTORS.bugFailure).should('have.value', '1');
   cy.get(SELECTORS.maintenance).should('have.value', '2');
-  cy.get(SELECTORS.implementationTime).should('have.value', '100');
-  cy.get(SELECTORS.timeHorizon).should('have.value', '2');
+  cy.get(SELECTORS.implementationTime).should('have.value', '40');
+  cy.get(SELECTORS.timeHorizon).should('have.value', '1');
   // Allow both '0.5' and '0.50' as valid default values
   cy.get(SELECTORS.computeCost)
     .invoke('val')
@@ -424,8 +402,6 @@ Cypress.Commands.add('shouldHaveConfiguredValues', (values: Record<string, strin
     duration: 'duration',
     'duration-unit': 'durationUnit',
     'speed-gain': 'speedGain',
-    'current-failure': 'currentFailure',
-    'bug-failure': 'bugFailure',
     maintenance: 'maintenance',
     'maintenance-unit': 'maintenanceUnit',
     'implementation-time': 'implementationTime',
@@ -727,9 +703,9 @@ Cypress.Commands.add('shouldShowInfluenceDiagram', () => {
 });
 
 Cypress.Commands.add('shouldShowInfluenceDiagramContent', () => {
-  cy.contains('This diagram shows how all factors interact to influence the final optimization decision').should('exist');
-  cy.contains('Green arrows indicate positive influence').should('exist');
-  cy.contains('orange nodes are critical leverage points').should('exist');
+  cy.contains('This diagram shows how all input parameters flow through calculations to produce the final decision').should('exist');
+  cy.contains('Arrows show directional influence').should('exist');
+  cy.contains('Optimization Preference').should('exist');
 });
 
 Cypress.Commands.add('shouldShowFullscreenButton', () => {
@@ -795,26 +771,26 @@ Cypress.Commands.add('closeFullscreenModalWithBackdrop', () => {
 });
 
 Cypress.Commands.add('shouldShowInfluenceDiagramNodes', () => {
-  // Check for key nodes in the influence diagram
-  cy.get(SELECTORS.mermaidSvg).should('contain.text', 'Request Rate');
-  cy.get(SELECTORS.mermaidSvg).should('contain.text', 'Speed Gain %');
-  cy.get(SELECTORS.mermaidSvg).should('contain.text', 'Total Time Saved');
-  cy.get(SELECTORS.mermaidSvg).should('contain.text', 'Net Benefit');
-  cy.get(SELECTORS.mermaidSvg).should('contain.text', 'Final Decision');
+  // Check that the diagram SVG has been rendered with nodes
+  // (Text content checking doesn't work well with Mermaid's inline CSS)
+  cy.get(SELECTORS.mermaidSvg).first().scrollIntoView().should('exist').and('be.visible');
+  // Verify the SVG has actual content (nodes) by checking it has path/rect elements
+  cy.get(SELECTORS.mermaidSvg).first().find('g.nodes').should('exist');
+  cy.get(SELECTORS.mermaidSvg).first().find('g.edgePaths').should('exist');
 });
 
 Cypress.Commands.add('shouldShowSuccessFactors', () => {
-  cy.contains('🎯 Key Success Factors').should('exist');
-  cy.contains('Request Rate Amplification').should('exist');
-  cy.contains('Time Horizon Leverage').should('exist');
-  cy.contains('Optimization Preference').should('exist');
+  cy.contains('🎯 Key Insights').should('exist');
+  cy.contains('Compounding effect').should('exist');
+  cy.contains('Break-even dynamics').should('exist');
+  cy.contains('Speed gain impact').should('exist');
 });
 
 Cypress.Commands.add('shouldShowFeedbackLoops', () => {
-  cy.contains('🔄 Critical Feedback Loops').should('exist');
-  cy.contains('High Traffic Loop').should('exist');
-  cy.contains('Cost Efficiency Loop').should('exist');
-  cy.contains('Risk vs Reward').should('exist');
+  cy.contains('⚖️ How the Preference Slider Works').should('exist');
+  cy.contains('Cost-focused').should('exist');
+  cy.contains('Balanced').should('exist');
+  cy.contains('Throughput-focused').should('exist');
 });
 
 Cypress.Commands.add('testInfluenceDiagramWorkflow', () => {

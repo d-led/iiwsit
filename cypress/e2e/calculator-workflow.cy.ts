@@ -99,8 +99,6 @@ describe('Throughput Optimization Calculator - User Workflows', () => {
       cy.enterRequestRate(100, 'second');
       cy.enterRequestDuration(500, 'millisecond');
       cy.enterSpeedGain(30);
-      cy.enterCurrentFailureRate(5);
-      cy.enterBugFailureRate(1);
       cy.enterMaintenanceTime(2, 'hour-per-week');
       cy.enterImplementationTime(100);
       cy.enterTimeHorizon(3, 'month');
