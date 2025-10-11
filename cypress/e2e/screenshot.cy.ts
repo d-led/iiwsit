@@ -142,4 +142,31 @@ describe('Screenshot Tests - Visual Regression', () => {
       cy.screenshotResultsSection('desktop-maybe-decision');
     });
   });
+
+  describe('Fullscreen Diagram', () => {
+    it('should capture fullscreen influence diagram', () => {
+      cy.viewport(1920, 1080); // Large viewport for fullscreen
+      cy.wait(500);
+
+      // Scroll to results and expand the diagram
+      cy.scrollToResults();
+      cy.wait(500);
+
+      // Expand diagram and open fullscreen (uses tested helper command)
+      cy.expandInfluenceDiagram();
+      cy.wait(1000); // Wait for diagram section to expand
+
+      // Open fullscreen (this command already waits for modal to appear)
+      cy.openFullscreenDiagram();
+
+      // Wait for the fullscreen SVG to be fully rendered
+      cy.waitForFullscreenSvg();
+
+      // Wait 10 seconds to ensure complete rendering
+      cy.wait(10000);
+
+      // Capture the fullscreen modal
+      cy.screenshotFullscreenModal('desktop-fullscreen-diagram');
+    });
+  });
 });

@@ -140,6 +140,7 @@ const SELECTORS = {
   fullscreenMermaidContainer: '#fullscreen-mermaid-container',
   fullscreenMermaidDiagram: '#fullscreen-mermaid-diagram',
   fullscreenMermaidSvg: '#fullscreen-mermaid-diagram svg',
+  fullscreenMermaidDiagramSvg: '#fullscreen-mermaid-diagram svg', // Alias for clarity in screenshot tests
   fullscreenInstructions: 'div:contains("💡 Use mouse wheel to zoom, drag to pan (Mermaid native controls)")',
 
   // Influence Diagram Content
@@ -220,9 +221,11 @@ declare global {
       screenshotInputsSection(filename: string): Chainable<void>;
       screenshotResultsSection(filename: string): Chainable<void>;
       screenshotFloatingBubble(filename: string): Chainable<void>;
+      screenshotFullscreenModal(filename: string): Chainable<void>;
       scrollToResults(): Chainable<void>;
       shouldShowFloatingBubble(): Chainable<void>;
       captureDecisionText(alias: string): Chainable<void>;
+      waitForFullscreenSvg(timeout?: number): Chainable<void>;
 
       // KaTeX/Formula commands
       shouldHaveUnifiedAnalysisSection(): Chainable<void>;
@@ -641,6 +644,19 @@ Cypress.Commands.add('screenshotFloatingBubble', (filename: string) => {
   cy.get(SELECTORS.floatingBubble).screenshot(filename, {
     overwrite: true,
   });
+});
+
+Cypress.Commands.add('screenshotFullscreenModal', (filename: string) => {
+  cy.get(SELECTORS.mermaidFullscreenModal).screenshot(filename, {
+    overwrite: true,
+    capture: 'viewport',
+  });
+});
+
+Cypress.Commands.add('waitForFullscreenSvg', (timeout = 15000) => {
+  cy.get(SELECTORS.fullscreenMermaidDiagramSvg, { timeout })
+    .should('exist')
+    .and('be.visible');
 });
 
 Cypress.Commands.add('scrollToResults', () => {
