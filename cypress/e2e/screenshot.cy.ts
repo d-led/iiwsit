@@ -146,21 +146,22 @@ describe('Screenshot Tests - Visual Regression', () => {
   describe('Fullscreen Diagram', () => {
     it('should capture fullscreen influence diagram', () => {
       cy.viewport(1920, 1080); // Large viewport for fullscreen
-      cy.wait(500);
+      cy.wait(1000);
 
       // Scroll to results and expand the diagram
       cy.scrollToResults();
-      cy.wait(500);
+      cy.wait(1000);
 
-      // Expand diagram and open fullscreen (uses tested helper command)
+      // Expand diagram and wait for it to be ready
       cy.expandInfluenceDiagram();
-      cy.wait(1000); // Wait for diagram section to expand
+      cy.shouldShowInfluenceDiagram(); // This waits for diagram to be visible
+      cy.wait(2000); // Extra wait for diagram to fully render before opening fullscreen
 
       // Open fullscreen (this command already waits for modal to appear)
       cy.openFullscreenDiagram();
 
-      // Wait for the fullscreen SVG to be fully rendered
-      cy.waitForFullscreenSvg();
+      // Wait for the fullscreen SVG to be fully rendered with extended timeout
+      cy.waitForFullscreenSvg(20000);
 
       // Wait 10 seconds to ensure complete rendering
       cy.wait(10000);
