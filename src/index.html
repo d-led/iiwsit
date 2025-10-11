@@ -538,8 +538,8 @@
                                 TTS tts2@==>|"increases (+)"| ROI_T["`ROI %
                                 Time-based`"]
                                 tts2@{ animate: true }
-                                TTS -->|"decreases (-)"| BE_T["`Break-even
-                                Time-based`"]
+                                TTS ttsbe@-->|"decreases (-)"| BE_T
+                                ttsbe@{ animate: true }
 
                                 %% === COST PATH (Red - costs of optimization) ===
                                 IT ite@==>|"increases (+)"| TC_T["`Total Cost
@@ -550,8 +550,10 @@
                                 TH the2@==>|"increases (+)"| TC_T
                                 the2@{ animate: true }
 
-                                TC_T -->|"decreases (-)"| NB_T
-                                TC_T -->|"decreases (-)"| ROI_T
+                                TC_T tcnbt@-->|"decreases (-)"| NB_T
+                                tcnbt@{ animate: true }
+                                TC_T tcroit@-->|"decreases (-)"| ROI_T
+                                tcroit@{ animate: true }
                                 TC_T tc_t@==>|"increases (+)"| BE_T
                                 tc_t@{ animate: true }
 
@@ -575,15 +577,17 @@
                                 CCS ccs@==>|"increases (+)"| NB_M["`Net Benefit
                                 Money-based`"]
                                 ccs@{ animate: true }
-                                TC_M -->|"decreases (-)"| NB_M
+                                TC_M tcnbm@-->|"decreases (-)"| NB_M
+                                tcnbm@{ animate: true }
 
                                 NB_M nbme@==>|"increases (+)"| ROI_M["`ROI %
                                 Money-based`"]
                                 nbme@{ animate: true }
-                                TC_M -->|"decreases (-)"| ROI_M
+                                TC_M tcroim@-->|"decreases (-)"| ROI_M
+                                tcroim@{ animate: true }
 
-                                NB_M -->|"decreases (-)"| BE_M["`Break-even
-                                Money-based`"]
+                                NB_M nbmbem@-->|"decreases (-)"| BE_M
+                                nbmbem@{ animate: true }
                                 TC_M tc_m@==>|"increases (+)"| BE_M
                                 tc_m@{ animate: true }
 

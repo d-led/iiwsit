@@ -121,3 +121,13 @@ input[type='range'].range {
     box-shadow: 0 0 0 10px rgba(251, 146, 60, 0);
   }
 }
+
+/* Reverse animation for "decreases" arrows in Mermaid diagrams */
+path#ttsbe,
+path#tcnbt,
+path#tcroit,
+path#tcnbm,
+path#tcroim,
+path#nbmbem {
+  animation-direction: reverse !important;
+}
