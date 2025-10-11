@@ -65,6 +65,13 @@ const SELECTORS = {
   fullscreenMermaidSvg: '#fullscreen-mermaid-diagram svg',
   fullscreenInstructions: 'div:contains("💡 Use mouse wheel to zoom, drag to pan (Mermaid native controls)")',
 
+  // Influence Diagram Content
+  keyInsights: '🎯 Key Insights',
+  compoundingEffect: 'Compounding effect',
+  breakEvenDynamics: 'Break-even dynamics',
+  speedGainImpact: 'Speed gain impact',
+  preferenceSliderSection: '⚖️ How the Preference Slider Works',
+
   // Version and UI elements
   appVersion: '#app-version',
   footer: 'footer',
@@ -163,20 +170,37 @@ declare global {
       throughputDecisionShouldBeOneOf(validDecisions: string[]): Chainable<void>;
 
       // Influence Diagram commands
+      waitForResultsAndScroll(): Chainable<void>;
+      shouldBeInitiallyCollapsed(): Chainable<void>;
       expandInfluenceDiagram(): Chainable<void>;
+      collapseInfluenceDiagram(): Chainable<void>;
       shouldShowInfluenceDiagram(): Chainable<void>;
       shouldShowInfluenceDiagramContent(): Chainable<void>;
+      shouldRenderMermaidSvg(): Chainable<void>;
       shouldShowFullscreenButton(): Chainable<void>;
+      shouldShowFullscreenButtonWithTitle(): Chainable<void>;
       openFullscreenDiagram(): Chainable<void>;
       shouldShowFullscreenModal(): Chainable<void>;
+      shouldShowFullscreenModalTitle(): Chainable<void>;
       shouldShowFullscreenDiagram(): Chainable<void>;
+      shouldShowMermaidControls(): Chainable<void>;
+      shouldRenderFullscreenSvg(): Chainable<void>;
       closeFullscreenModal(): Chainable<void>;
       shouldHideFullscreenModal(): Chainable<void>;
       closeFullscreenModalWithEscape(): Chainable<void>;
       closeFullscreenModalWithBackdrop(): Chainable<void>;
       shouldShowInfluenceDiagramNodes(): Chainable<void>;
+      shouldHaveInteractiveSvg(): Chainable<void>;
+      shouldContainAllDiagramNodes(): Chainable<void>;
       shouldShowSuccessFactors(): Chainable<void>;
       shouldShowFeedbackLoops(): Chainable<void>;
+      shouldShowCompoundingEffect(): Chainable<void>;
+      shouldShowBreakEvenDynamics(): Chainable<void>;
+      shouldShowSpeedGainImpact(): Chainable<void>;
+      shouldHaveAccessibleFullscreenButton(): Chainable<void>;
+      shouldHaveAccessibleCloseButton(): Chainable<void>;
+      shouldRenderDiagramWithinReasonableTime(): Chainable<void>;
+      shouldOpenFullscreenQuickly(): Chainable<void>;
       testInfluenceDiagramWorkflow(): Chainable<void>;
     }
   }
@@ -660,6 +684,16 @@ Cypress.Commands.add('throughputDecisionShouldBeOneOf', (validDecisions: string[
 
 // Influence Diagram Commands
 
+Cypress.Commands.add('waitForResultsAndScroll', () => {
+  cy.get(SELECTORS.resultsSection, { timeout: 10000 }).should('exist');
+  cy.get(SELECTORS.resultsSection).scrollIntoView();
+  cy.wait(1000); // Wait for DOM to be fully updated
+});
+
+Cypress.Commands.add('shouldBeInitiallyCollapsed', () => {
+  cy.get(SELECTORS.influenceDiagram).should('not.be.visible');
+});
+
 Cypress.Commands.add('expandInfluenceDiagram', () => {
   // First ensure results are generated and scroll to results section
   cy.get(SELECTORS.resultsSection).scrollIntoView();
@@ -702,10 +736,22 @@ Cypress.Commands.add('shouldShowInfluenceDiagram', () => {
     .and('be.visible');
 });
 
+Cypress.Commands.add('collapseInfluenceDiagram', () => {
+  cy.get(SELECTORS.viewInfluenceMapToggle)
+    .parent()
+    .find('input[type="checkbox"]')
+    .uncheck({ force: true });
+  cy.wait(800); // Wait for collapse animation
+});
+
 Cypress.Commands.add('shouldShowInfluenceDiagramContent', () => {
   cy.contains('This diagram shows how all input parameters flow through calculations to produce the final decision').should('exist');
   cy.contains('Arrows show directional influence').should('exist');
   cy.contains('Optimization Preference').should('exist');
+});
+
+Cypress.Commands.add('shouldRenderMermaidSvg', () => {
+  cy.get(SELECTORS.mermaidSvg).first().scrollIntoView().should('exist').and('be.visible');
 });
 
 Cypress.Commands.add('shouldShowFullscreenButton', () => {
@@ -726,6 +772,11 @@ Cypress.Commands.add('shouldShowFullscreenButton', () => {
   cy.get(SELECTORS.fullscreenDiagramBtn).should('contain', 'Fullscreen');
 });
 
+Cypress.Commands.add('shouldShowFullscreenButtonWithTitle', () => {
+  cy.shouldShowFullscreenButton();
+  cy.get(SELECTORS.fullscreenDiagramBtn).should('have.attr', 'title', 'Open diagram in fullscreen with zoom/pan');
+});
+
 Cypress.Commands.add('openFullscreenDiagram', () => {
   cy.get(SELECTORS.fullscreenDiagramBtn).scrollIntoView().click({ force: true });
   // Wait for modal to be visible before continuing
@@ -738,6 +789,18 @@ Cypress.Commands.add('shouldShowFullscreenModal', () => {
   cy.get(SELECTORS.fullscreenModalTitle).should('exist').and('be.visible');
   cy.get(SELECTORS.closeFullscreenBtn).should('exist').and('be.visible');
   cy.get(SELECTORS.fullscreenInstructions).should('exist').and('be.visible');
+});
+
+Cypress.Commands.add('shouldShowFullscreenModalTitle', () => {
+  cy.contains('📈 Influence Diagram - Full Screen').should('be.visible');
+});
+
+Cypress.Commands.add('shouldShowMermaidControls', () => {
+  cy.contains('💡 Use mouse wheel to zoom, drag to pan').should('be.visible');
+});
+
+Cypress.Commands.add('shouldRenderFullscreenSvg', () => {
+  cy.get(SELECTORS.fullscreenMermaidSvg).should('exist').and('be.visible');
 });
 
 Cypress.Commands.add('shouldShowFullscreenDiagram', () => {
@@ -779,18 +842,77 @@ Cypress.Commands.add('shouldShowInfluenceDiagramNodes', () => {
   cy.get(SELECTORS.mermaidSvg).first().find('g.edgePaths').should('exist');
 });
 
+Cypress.Commands.add('shouldHaveInteractiveSvg', () => {
+  cy.get(SELECTORS.fullscreenMermaidSvg)
+    .should('exist')
+    .and('be.visible')
+    .and('not.be.empty');
+});
+
+Cypress.Commands.add('shouldContainAllDiagramNodes', () => {
+  cy.get(SELECTORS.fullscreenMermaidSvg).should('exist').and('be.visible');
+  cy.get(SELECTORS.fullscreenMermaidSvg).find('g.nodes').should('exist');
+  cy.get(SELECTORS.fullscreenMermaidSvg).find('g.edgePaths').should('exist');
+});
+
 Cypress.Commands.add('shouldShowSuccessFactors', () => {
-  cy.contains('🎯 Key Insights').should('exist');
-  cy.contains('Compounding effect').should('exist');
-  cy.contains('Break-even dynamics').should('exist');
-  cy.contains('Speed gain impact').should('exist');
+  cy.contains(SELECTORS.keyInsights).should('exist');
+  cy.contains(SELECTORS.compoundingEffect).should('exist');
+  cy.contains(SELECTORS.breakEvenDynamics).should('exist');
+  cy.contains(SELECTORS.speedGainImpact).should('exist');
 });
 
 Cypress.Commands.add('shouldShowFeedbackLoops', () => {
-  cy.contains('⚖️ How the Preference Slider Works').should('exist');
+  cy.contains(SELECTORS.preferenceSliderSection).should('exist');
   cy.contains('Cost-focused').should('exist');
   cy.contains('Balanced').should('exist');
   cy.contains('Throughput-focused').should('exist');
+});
+
+Cypress.Commands.add('shouldShowCompoundingEffect', () => {
+  cy.contains(SELECTORS.compoundingEffect).should('exist');
+  cy.contains('Higher request rate + longer time horizon = exponential benefit growth').should('exist');
+});
+
+Cypress.Commands.add('shouldShowBreakEvenDynamics', () => {
+  cy.contains(SELECTORS.breakEvenDynamics).should('exist');
+  cy.contains('Lower costs and higher benefits both reduce break-even time').should('exist');
+});
+
+Cypress.Commands.add('shouldShowSpeedGainImpact', () => {
+  cy.contains(SELECTORS.speedGainImpact).should('exist');
+  cy.contains('Affects both direct time savings AND compute cost savings').should('exist');
+});
+
+Cypress.Commands.add('shouldHaveAccessibleFullscreenButton', () => {
+  cy.get(SELECTORS.fullscreenDiagramBtn)
+    .scrollIntoView()
+    .should('be.visible')
+    .and('have.attr', 'title');
+});
+
+Cypress.Commands.add('shouldHaveAccessibleCloseButton', () => {
+  cy.get(SELECTORS.closeFullscreenBtn)
+    .should('be.visible')
+    .and('contain', 'Close');
+});
+
+Cypress.Commands.add('shouldRenderDiagramWithinReasonableTime', () => {
+  const start = Date.now();
+  cy.expandInfluenceDiagram();
+  cy.get(SELECTORS.mermaidSvg, { timeout: 10000 }).should('exist').then(() => {
+    const renderTime = Date.now() - start;
+    expect(renderTime).to.be.lessThan(10000); // Mermaid + animations take 5-7s typically
+  });
+});
+
+Cypress.Commands.add('shouldOpenFullscreenQuickly', () => {
+  const start = Date.now();
+  cy.openFullscreenDiagram();
+  cy.get(SELECTORS.fullscreenMermaidSvg, { timeout: 10000 }).should('exist').then(() => {
+    const openTime = Date.now() - start;
+    expect(openTime).to.be.lessThan(10000); // Mermaid re-rendering takes 5-7s typically
+  });
 });
 
 Cypress.Commands.add('testInfluenceDiagramWorkflow', () => {

@@ -18,43 +18,29 @@ describe('Influence Diagram', () => {
   describe('Diagram Rendering and Expansion', () => {
     it('should show influence diagram section', () => {
       cy.configureHighTrafficScenario();
-
-      // Wait for results section to exist and then scroll to it
-      cy.get('#results-section', { timeout: 10000 }).should('exist');
-      cy.get('#results-section').scrollIntoView();
-      cy.wait(1000); // Wait for DOM to be fully updated
-
-      // Wait a bit for DOM to be fully updated
-      cy.wait(1000);
-
-      cy.get('#influence-diagram').should('not.be.visible'); // Initially collapsed
+      cy.waitForResultsAndScroll();
+      cy.shouldBeInitiallyCollapsed();
       cy.expandInfluenceDiagram();
       cy.shouldShowInfluenceDiagram();
     });
 
     it('should render Mermaid diagram with SVG', () => {
       cy.configureHighTrafficScenario();
-      cy.get('#results-section', { timeout: 10000 }).should('exist');
-      cy.get('#results-section').scrollIntoView();
-      cy.wait(1000); // Wait for DOM to be fully updated
+      cy.waitForResultsAndScroll();
       cy.expandInfluenceDiagram();
-      cy.get('.mermaid svg').first().scrollIntoView().should('exist').and('be.visible');
+      cy.shouldRenderMermaidSvg();
     });
 
     it('should display diagram description and instructions', () => {
       cy.configureHighTrafficScenario();
-      cy.get('#results-section', { timeout: 10000 }).should('exist');
-      cy.get('#results-section').scrollIntoView();
-      cy.wait(1000); // Wait for DOM to be fully updated
+      cy.waitForResultsAndScroll();
       cy.expandInfluenceDiagram();
       cy.shouldShowInfluenceDiagramContent();
     });
 
     it('should show fullscreen button after diagram renders', () => {
       cy.configureHighTrafficScenario();
-      cy.get('#results-section', { timeout: 10000 }).should('exist');
-      cy.get('#results-section').scrollIntoView();
-      cy.wait(1000); // Wait for DOM to be fully updated
+      cy.waitForResultsAndScroll();
       cy.expandInfluenceDiagram();
       cy.shouldShowFullscreenButton();
     });
@@ -80,18 +66,15 @@ describe('Influence Diagram', () => {
     });
 
     it('should explain compounding effect', () => {
-      cy.contains('Compounding effect').should('exist');
-      cy.contains('Higher request rate + longer time horizon = exponential benefit growth').should('exist');
+      cy.shouldShowCompoundingEffect();
     });
 
     it('should explain break-even dynamics', () => {
-      cy.contains('Break-even dynamics').should('exist');
-      cy.contains('Lower costs and higher benefits both reduce break-even time').should('exist');
+      cy.shouldShowBreakEvenDynamics();
     });
 
     it('should explain speed gain impact', () => {
-      cy.contains('Speed gain impact').should('exist');
-      cy.contains('Affects both direct time savings AND compute cost savings').should('exist');
+      cy.shouldShowSpeedGainImpact();
     });
   });
 
@@ -110,17 +93,17 @@ describe('Influence Diagram', () => {
 
     it('should display fullscreen modal title', () => {
       cy.openFullscreenDiagram();
-      cy.contains('📈 Influence Diagram - Full Screen').should('be.visible');
+      cy.shouldShowFullscreenModalTitle();
     });
 
     it('should show Mermaid native controls instructions', () => {
       cy.openFullscreenDiagram();
-      cy.contains('💡 Use mouse wheel to zoom, drag to pan').should('be.visible');
+      cy.shouldShowMermaidControls();
     });
 
     it('should render diagram in fullscreen modal', () => {
       cy.openFullscreenDiagram();
-      cy.get('#fullscreen-mermaid-diagram svg').should('exist').and('be.visible');
+      cy.shouldRenderFullscreenSvg();
     });
 
     it('should close fullscreen modal with close button', () => {
@@ -165,17 +148,11 @@ describe('Influence Diagram', () => {
     });
 
     it('should have interactive SVG diagram', () => {
-      cy.get('#fullscreen-mermaid-diagram svg')
-        .should('exist')
-        .and('be.visible')
-        .and('not.be.empty');
+      cy.shouldHaveInteractiveSvg();
     });
 
     it('should contain all diagram nodes in fullscreen', () => {
-      // Verify the fullscreen SVG has been rendered with nodes and edges
-      cy.get('#fullscreen-mermaid-diagram svg').should('exist').and('be.visible');
-      cy.get('#fullscreen-mermaid-diagram svg').find('g.nodes').should('exist');
-      cy.get('#fullscreen-mermaid-diagram svg').find('g.edgePaths').should('exist');
+      cy.shouldContainAllDiagramNodes();
     });
   });
 
@@ -209,16 +186,8 @@ describe('Influence Diagram', () => {
       cy.calculate();
       cy.expandInfluenceDiagram();
       cy.shouldShowInfluenceDiagram();
-
-      // Collapse by unchecking the checkbox
-      cy.get('div.collapse-title:contains("📈 View Factor Influence Map")')
-        .parent()
-        .find('input[type="checkbox"]')
-        .uncheck({ force: true });
-      cy.wait(800); // Wait for collapse animation
-      cy.get('#influence-diagram').should('not.be.visible');
-
-      // Re-expand
+      cy.collapseInfluenceDiagram();
+      cy.shouldBeInitiallyCollapsed();
       cy.expandInfluenceDiagram();
       cy.shouldShowInfluenceDiagram();
     });
@@ -227,8 +196,7 @@ describe('Influence Diagram', () => {
       cy.configureHighTrafficScenario();
       cy.calculate();
       cy.expandInfluenceDiagram();
-      cy.shouldShowFullscreenButton();
-      cy.get('#fullscreen-diagram-btn').should('have.attr', 'title', 'Open diagram in fullscreen with zoom/pan');
+      cy.shouldShowFullscreenButtonWithTitle();
     });
   });
 
@@ -240,17 +208,12 @@ describe('Influence Diagram', () => {
     });
 
     it('should have accessible fullscreen button', () => {
-      cy.get('#fullscreen-diagram-btn')
-        .scrollIntoView()
-        .should('be.visible')
-        .and('have.attr', 'title');
+      cy.shouldHaveAccessibleFullscreenButton();
     });
 
     it('should have accessible close button in modal', () => {
       cy.openFullscreenDiagram();
-      cy.get('#close-fullscreen-btn')
-        .should('be.visible')
-        .and('contain', 'Close');
+      cy.shouldHaveAccessibleCloseButton();
     });
   });
 
@@ -258,26 +221,14 @@ describe('Influence Diagram', () => {
     it('should render diagram within reasonable time', () => {
       cy.configureHighTrafficScenario();
       cy.calculate();
-
-      const start = Date.now();
-      cy.expandInfluenceDiagram();
-      cy.get('.mermaid svg', { timeout: 10000 }).should('exist').then(() => {
-        const renderTime = Date.now() - start;
-        expect(renderTime).to.be.lessThan(8000); // Mermaid + animations take 5-7s typically
-      });
+      cy.shouldRenderDiagramWithinReasonableTime();
     });
 
     it('should open fullscreen modal quickly', () => {
       cy.configureHighTrafficScenario();
       cy.calculate();
       cy.expandInfluenceDiagram();
-
-      const start = Date.now();
-      cy.openFullscreenDiagram();
-      cy.get('#fullscreen-mermaid-diagram svg', { timeout: 10000 }).should('exist').then(() => {
-        const openTime = Date.now() - start;
-        expect(openTime).to.be.lessThan(8000); // Mermaid re-rendering takes 5-7s typically
-      });
+      cy.shouldOpenFullscreenQuickly();
     });
   });
 });
