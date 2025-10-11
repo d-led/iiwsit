@@ -38,6 +38,15 @@ const SELECTORS = {
   inputsSection: '[data-cy="inputs-section"]',
   resultsSectionData: '[data-cy="results-section"]',
   floatingBubble: '[data-cy="floating-bubble"]',
+
+  // KaTeX/Formulas
+  unifiedAnalysisSection: 'h3:contains("📊 Analysis & Mathematical Foundation")',
+  mathematicalFoundationDivider: 'div.divider:contains("🧮 Mathematical Foundation")',
+  viewFormulasToggle: 'div.collapse-title:contains("📐 View Mathematical Formulas")',
+  formulaRender: '.formula-render',
+  formulaRenderWithData: '.formula-render[data-formula]',
+  katexElement: '.katex',
+  formulaContextText: 'p:contains("The calculations below form the mathematical foundation")',
 } as const;
 
 declare global {
@@ -109,6 +118,18 @@ declare global {
       scrollToResults(): Chainable<void>;
       shouldShowFloatingBubble(): Chainable<void>;
       captureDecisionText(alias: string): Chainable<void>;
+
+      // KaTeX/Formula commands
+      shouldHaveUnifiedAnalysisSection(): Chainable<void>;
+      shouldHaveMathematicalFoundationSection(): Chainable<void>;
+      expandMathFormulas(): Chainable<void>;
+      shouldRenderKatexFormulas(): Chainable<void>;
+      shouldHaveFormulaDataAttributes(minCount: number): Chainable<void>;
+      shouldHaveLargerFormulas(): Chainable<void>;
+      shouldHaveHumanReadableDescriptions(): Chainable<void>;
+      shouldHaveVariableExplanations(): Chainable<void>;
+      shouldCollapseAndExpandFormulas(): Chainable<void>;
+      shouldShowMathematicalFoundationContext(): Chainable<void>;
     }
   }
 }
@@ -479,6 +500,62 @@ Cypress.Commands.add('shouldShowFloatingBubble', () => {
 
 Cypress.Commands.add('captureDecisionText', (alias: string) => {
   cy.get(SELECTORS.decisionBadge).invoke('text').as(alias);
+});
+
+// KaTeX/Formula Commands
+
+Cypress.Commands.add('shouldHaveUnifiedAnalysisSection', () => {
+  cy.contains('📊 Analysis & Mathematical Foundation').should('exist');
+});
+
+Cypress.Commands.add('shouldHaveMathematicalFoundationSection', () => {
+  cy.contains('🧮 Mathematical Foundation').should('exist');
+  cy.contains('📐 View Mathematical Formulas').should('exist');
+});
+
+Cypress.Commands.add('expandMathFormulas', () => {
+  cy.contains('📐 View Mathematical Formulas').click({ force: true });
+  cy.wait(1000); // Wait for animation and KaTeX rendering
+});
+
+Cypress.Commands.add('shouldRenderKatexFormulas', () => {
+  cy.get(SELECTORS.formulaRender).should('exist');
+  cy.get(SELECTORS.katexElement).should('exist');
+  cy.get(SELECTORS.katexElement).should('have.length.at.least', 1);
+});
+
+Cypress.Commands.add('shouldHaveFormulaDataAttributes', (minCount: number) => {
+  cy.get(SELECTORS.formulaRender).should('exist');
+  cy.get(SELECTORS.formulaRenderWithData).should('have.length.at.least', minCount);
+});
+
+Cypress.Commands.add('shouldHaveLargerFormulas', () => {
+  cy.get(SELECTORS.formulaRender)
+    .first()
+    .should('have.css', 'font-size')
+    .and('match', /^(28|32)px$/); // Responsive scaling between 1.75em and 2em
+});
+
+Cypress.Commands.add('shouldHaveHumanReadableDescriptions', () => {
+  cy.contains('Total Requests = Rate (req/hr) × 24 (hr/day) × 365 (days/yr) × Time Horizon (years)').should('exist');
+  cy.contains('Time Saved = Current Duration × (Speed Gain % ÷ 100)').should('exist');
+  cy.contains('ROI = (Net Benefit ÷ Total Cost) × 100%').should('exist');
+});
+
+Cypress.Commands.add('shouldHaveVariableExplanations', () => {
+  cy.contains('where r = requests per hour, T = time horizon in years').should('exist');
+  cy.contains('where d = duration per request (hours), g = speed gain (%)').should('exist');
+  cy.contains('where I = implementation hours, M = maintenance hours/year').should('exist');
+});
+
+Cypress.Commands.add('shouldCollapseAndExpandFormulas', () => {
+  cy.contains('Total Requests = Rate (req/hr)').should('exist');
+  cy.contains('📐 View Mathematical Formulas').click({ force: true });
+  cy.wait(500);
+});
+
+Cypress.Commands.add('shouldShowMathematicalFoundationContext', () => {
+  cy.contains('The calculations below form the mathematical foundation for the optimization decision above').should('exist');
 });
 
 export {};

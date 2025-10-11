@@ -426,62 +426,66 @@
                 </div>
               </div>
 
-              <!-- Explanation -->
+              <!-- Unified Analysis & Mathematical Foundation -->
               <div class="card bg-base-100 shadow-xl">
                 <div class="card-body p-4 sm:p-6">
-                  <h3 class="card-title text-xl sm:text-2xl mb-3 sm:mb-4">Explanation</h3>
+                  <h3 class="card-title text-xl sm:text-2xl mb-3 sm:mb-4">📊 Analysis & Mathematical Foundation</h3>
                   <div id="explanation-content" class="text-sm sm:text-base"></div>
-                </div>
-              </div>
-
-              <!-- Mathematical Formulas (Collapsible) -->
-              <div class="card bg-base-100 shadow-xl">
-                <div class="card-body p-4 sm:p-6">
-                  <details class="collapse collapse-arrow">
-                    <summary class="collapse-title text-xl sm:text-2xl font-bold cursor-pointer">
-                      📐 Mathematical Formulas
-                    </summary>
-                    <div class="collapse-content text-sm sm:text-base space-y-4 pt-4">
-                      <div class="space-y-3">
-                        <h4 class="font-semibold text-lg">Core Calculations</h4>
-
-                        <div class="bg-base-200 p-3 rounded">
-                          <p class="mb-2"><strong>Total Requests Over Time Horizon:</strong></p>
-                          <div
-                            class="formula-render"
-                            data-formula='R_("total") = r * 24 * 365 * T'
-                          ></div>
-                          <p class="text-xs text-base-content/70">
-                            where `r` = requests per hour, `T` = time horizon in years
+                  
+                  <!-- Mathematical Formulas Section -->
+                  <div class="mt-8">
+                    <div class="divider">🧮 Mathematical Foundation</div>
+                    <div class="collapse collapse-arrow bg-base-200 mt-4">
+                      <input type="checkbox" />
+                      <div class="collapse-title text-lg font-medium">📐 View Mathematical Formulas</div>
+                      <div class="collapse-content">
+                        <div class="space-y-4 pt-4">
+                          <p class="text-sm text-base-content/70 mb-6">
+                            The calculations below form the mathematical foundation for the optimization decision above.
                           </p>
-                        </div>
+                          
+                          <h4 class="font-semibold text-lg">Core Calculations</h4>
 
-                        <div class="bg-base-200 p-3 rounded">
-                          <p class="mb-2"><strong>Time Saved Per Request:</strong></p>
-                          <div
-                            class="formula-render"
-                            data-formula='t_("saved") = d * (g / 100)'
-                          ></div>
-                          <p class="text-xs text-base-content/70">
-                            where `d` = duration per request (hours), `g` = speed gain (%)
-                          </p>
-                        </div>
+                          <div class="bg-base-200 p-4 rounded-lg">
+                            <p class="mb-3"><strong>Total Requests Over Time Horizon:</strong></p>
+                            <p class="text-sm text-base-content/80 mb-3">
+                              Total Requests = Rate (req/hr) × 24 (hr/day) × 365 (days/yr) × Time Horizon (years)
+                            </p>
+                            <div class="formula-render" data-formula='R_("total") = r * 24 * 365 * T'></div>
+                            <p class="text-xs text-base-content/70 mt-3">
+                              where <code>r</code> = requests per hour, <code>T</code> = time horizon in years
+                            </p>
+                          </div>
 
-                        <div class="bg-base-200 p-3 rounded">
-                          <p class="mb-2"><strong>Total Time Saved:</strong></p>
-                          <div
-                            class="formula-render"
-                            data-formula='T_("saved") = t_("saved") * R_("total")'
-                          ></div>
-                        </div>
+                          <div class="bg-base-200 p-4 rounded-lg">
+                            <p class="mb-3"><strong>Time Saved Per Request:</strong></p>
+                            <p class="text-sm text-base-content/80 mb-3">
+                              Time Saved = Current Duration × (Speed Gain % ÷ 100)
+                            </p>
+                            <div class="formula-render" data-formula='t_("saved") = d * (g / 100)'></div>
+                            <p class="text-xs text-base-content/70 mt-3">
+                              where <code>d</code> = duration per request (hours), <code>g</code> = speed gain (%)
+                            </p>
+                          </div>
 
-                        <div class="bg-base-200 p-3 rounded">
-                          <p class="mb-2"><strong>Total Cost (Time-Based):</strong></p>
-                          <div class="formula-render" data-formula='C_("time") = I + (M * T)'></div>
-                          <p class="text-xs text-base-content/70">
-                            where `I` = implementation hours, `M` = maintenance hours/year
-                          </p>
-                        </div>
+                          <div class="bg-base-200 p-4 rounded-lg">
+                            <p class="mb-3"><strong>Total Time Saved:</strong></p>
+                            <p class="text-sm text-base-content/80 mb-3">
+                              Total Time Saved = Time Saved Per Request × Total Requests
+                            </p>
+                            <div class="formula-render" data-formula='T_("saved") = t_("saved") * R_("total")'></div>
+                          </div>
+
+                          <div class="bg-base-200 p-4 rounded-lg">
+                            <p class="mb-3"><strong>Total Cost (Time-Based):</strong></p>
+                            <p class="text-sm text-base-content/80 mb-3">
+                              Total Cost = Implementation Hours + (Maintenance Hours/Year × Time Horizon)
+                            </p>
+                            <div class="formula-render" data-formula='C_("time") = I + (M * T)'></div>
+                            <p class="text-xs text-base-content/70 mt-3">
+                              where <code>I</code> = implementation hours, <code>M</code> = maintenance hours/year
+                            </p>
+                          </div>
 
                         <h4 class="font-semibold text-lg mt-6">Financial Analysis</h4>
 
@@ -512,13 +516,13 @@
                           ></div>
                         </div>
 
-                        <div class="bg-base-200 p-3 rounded">
-                          <p class="mb-2"><strong>Return on Investment:</strong></p>
-                          <div
-                            class="formula-render"
-                            data-formula='"ROI" = (B_("money") / C_("money")) * 100%'
-                          ></div>
-                        </div>
+                          <div class="bg-base-200 p-4 rounded-lg">
+                            <p class="mb-3"><strong>Return on Investment:</strong></p>
+                            <p class="text-sm text-base-content/80 mb-3">
+                              ROI = (Net Benefit ÷ Total Cost) × 100%
+                            </p>
+                            <div class="formula-render" data-formula='"ROI" = (B_("money") / C_("money")) * 100%'></div>
+                          </div>
 
                         <div class="bg-base-200 p-3 rounded">
                           <p class="mb-2"><strong>Break-Even Time:</strong></p>
