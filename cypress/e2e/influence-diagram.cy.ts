@@ -167,17 +167,14 @@ describe('Influence Diagram', () => {
     });
 
     it('should automatically open fullscreen when page loads with #diagram', () => {
-      // Visit with #diagram anchor
+      // Visit with #diagram anchor - default settings will trigger automatic calculation
       cy.visit('/#diagram');
-      cy.configureHighTrafficScenario();
-      cy.calculate();
-
-      // Wait for the diagram to render and modal to open automatically
-      cy.waitForResultsAndScroll();
-      cy.wait(2500); // Wait for automatic section expansion, rendering, and modal opening
-
+      
+      // Wait for automatic calculation, results rendering, diagram rendering, and fullscreen opening
+      cy.wait(5000); // Allow time for: auto-calc → results → diagram section expansion → diagram render → fullscreen open
+      
       // Verify fullscreen modal is open
-      cy.shouldShowFullscreenModal();
+      cy.get('#mermaid-fullscreen-modal', { timeout: 10000 }).should('be.visible');
       cy.url().should('include', '#diagram');
     });
 
