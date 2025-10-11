@@ -303,40 +303,44 @@ function setupFullscreenControls(): void {
 
   // Close modal
   closeBtn.addEventListener('click', () => {
-    modal.classList.add('hidden');
-    document.body.style.overflow = ''; // Restore scrolling
-    // Clear the fullscreen diagram content to allow re-rendering
-    const fullscreenDiagram = document.getElementById('fullscreen-mermaid-diagram');
-    if (fullscreenDiagram) {
-      fullscreenDiagram.innerHTML = '';
-    }
+    closeFullscreenDiagram();
   });
 
   // Close on escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-      modal.classList.add('hidden');
-      document.body.style.overflow = '';
-      // Clear the fullscreen diagram content to allow re-rendering
-      const fullscreenDiagram = document.getElementById('fullscreen-mermaid-diagram');
-      if (fullscreenDiagram) {
-        fullscreenDiagram.innerHTML = '';
-      }
+      closeFullscreenDiagram();
     }
   });
 
   // Close on backdrop click
   modal.addEventListener('click', (e) => {
     if (e.target === modal) {
-      modal.classList.add('hidden');
-      document.body.style.overflow = '';
-      // Clear the fullscreen diagram content to allow re-rendering
-      const fullscreenDiagram = document.getElementById('fullscreen-mermaid-diagram');
-      if (fullscreenDiagram) {
-        fullscreenDiagram.innerHTML = '';
-      }
+      closeFullscreenDiagram();
     }
   });
+}
+
+/**
+ * Close the fullscreen diagram and clean up
+ */
+function closeFullscreenDiagram(): void {
+  const modal = document.getElementById('mermaid-fullscreen-modal');
+  if (!modal) return;
+
+  modal.classList.add('hidden');
+  document.body.style.overflow = ''; // Restore scrolling
+  
+  // Clear the fullscreen diagram content to allow re-rendering
+  const fullscreenDiagram = document.getElementById('fullscreen-mermaid-diagram');
+  if (fullscreenDiagram) {
+    fullscreenDiagram.innerHTML = '';
+  }
+
+  // Remove hash anchor from URL
+  if (window.location.hash.includes('diagram')) {
+    window.history.pushState(null, '', window.location.pathname + window.location.search);
+  }
 }
 
 
@@ -351,6 +355,11 @@ export function openFullscreenDiagram(): void {
   if (!modal || !fullscreenDiagram || !originalDiagram) {
     console.error('Fullscreen modal elements not found');
     return;
+  }
+
+  // Add hash anchor to URL for bookmarking/sharing
+  if (!window.location.hash.includes('diagram')) {
+    window.history.pushState(null, '', '#diagram');
   }
 
   // Clear any previous rendering state by removing data-processed attribute
@@ -468,6 +477,43 @@ export function setupMermaidExpansion(): void {
         }, 300);
       }
     });
+  }
+}
+
+/**
+ * Check if the page was loaded with #diagram anchor and open fullscreen if so
+ */
+export function checkAndOpenDiagramFromHash(): void {
+  if (window.location.hash.includes('diagram')) {
+    console.log('Detected #diagram in URL, opening fullscreen diagram...');
+    
+    // First, expand the influence diagram section if it's collapsed
+    const detailsElements = document.querySelectorAll('details');
+    const influenceDiagramDetails = Array.from(detailsElements).find((details) =>
+      details.textContent?.includes('Factor Influence Map')
+    );
+    
+    if (influenceDiagramDetails && !influenceDiagramDetails.open) {
+      console.log('Expanding influence diagram section...');
+      influenceDiagramDetails.open = true;
+    }
+    
+    // Wait for the original diagram to be rendered first
+    const checkDiagramReady = () => {
+      const originalDiagram = document.getElementById('influence-diagram');
+      const originalText = originalDiagram?.getAttribute('data-original-text');
+      
+      if (originalText) {
+        console.log('Original diagram is ready, opening fullscreen...');
+        openFullscreenDiagram();
+      } else {
+        console.log('Waiting for original diagram to render...');
+        setTimeout(checkDiagramReady, 200);
+      }
+    };
+    
+    // Start checking after a short delay to allow for section expansion animation
+    setTimeout(checkDiagramReady, 500);
   }
 }
 

@@ -16,6 +16,7 @@ import {
   waitForMermaid,
   setupMermaidExpansion,
   createFullscreenModal,
+  checkAndOpenDiagramFromHash,
 } from './mermaid';
 
 // Initialize the calculator
@@ -221,6 +222,8 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMermaidDiagrams()
           .then(() => {
             console.log('Mermaid rendering completed');
+            // Check if we should open diagram from URL hash
+            checkAndOpenDiagramFromHash();
           })
           .catch((err) => {
             console.warn('Mermaid rendering failed:', err);

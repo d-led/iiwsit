@@ -130,6 +130,74 @@ describe('Influence Diagram', () => {
       cy.shouldOpenFullscreenQuickly();
     });
   });
+
+  describe('URL Anchor Integration', () => {
+    it('should add #diagram to URL when opening fullscreen', () => {
+      cy.expandInfluenceDiagram();
+      cy.openFullscreenDiagram();
+      cy.shouldShowFullscreenModal();
+      cy.url().should('include', '#diagram');
+    });
+
+    it('should remove #diagram from URL when closing fullscreen', () => {
+      cy.expandInfluenceDiagram();
+      cy.openFullscreenDiagram();
+      cy.url().should('include', '#diagram');
+      cy.closeFullscreenModal();
+      cy.shouldHideFullscreenModal();
+      cy.url().should('not.include', '#diagram');
+    });
+
+    it('should remove #diagram when closing with Escape', () => {
+      cy.expandInfluenceDiagram();
+      cy.openFullscreenDiagram();
+      cy.url().should('include', '#diagram');
+      cy.closeFullscreenModalWithEscape();
+      cy.shouldHideFullscreenModal();
+      cy.url().should('not.include', '#diagram');
+    });
+
+    it('should remove #diagram when closing with backdrop click', () => {
+      cy.expandInfluenceDiagram();
+      cy.openFullscreenDiagram();
+      cy.url().should('include', '#diagram');
+      cy.closeFullscreenModalWithBackdrop();
+      cy.shouldHideFullscreenModal();
+      cy.url().should('not.include', '#diagram');
+    });
+
+    it('should automatically open fullscreen when page loads with #diagram', () => {
+      // Visit with #diagram anchor
+      cy.visit('/#diagram');
+      cy.configureHighTrafficScenario();
+      cy.calculate();
+      
+      // Wait for the diagram to render and modal to open automatically
+      cy.waitForResultsAndScroll();
+      cy.wait(2500); // Wait for automatic section expansion, rendering, and modal opening
+      
+      // Verify fullscreen modal is open
+      cy.shouldShowFullscreenModal();
+      cy.url().should('include', '#diagram');
+    });
+
+    it('should preserve #diagram anchor on page reload', () => {
+      // First open fullscreen normally
+      cy.expandInfluenceDiagram();
+      cy.openFullscreenDiagram();
+      cy.url().should('include', '#diagram');
+      
+      // Reload page
+      cy.reload();
+      
+      // Wait for page to reload and modal to reopen automatically
+      cy.wait(3000); // Wait for page reload, rendering, and automatic opening
+      
+      // Verify modal reopens automatically
+      cy.shouldShowFullscreenModal();
+      cy.url().should('include', '#diagram');
+    });
+  });
 });
 
 
