@@ -537,7 +537,9 @@ Cypress.Commands.add('shouldHaveLargerFormulas', () => {
 });
 
 Cypress.Commands.add('shouldHaveHumanReadableDescriptions', () => {
-  cy.contains('Total Requests = Rate (req/hr) × 24 (hr/day) × 365 (days/yr) × Time Horizon (years)').should('exist');
+  cy.contains(
+    'Total Requests = Rate (req/hr) × 24 (hr/day) × 365 (days/yr) × Time Horizon (years)'
+  ).should('exist');
   cy.contains('Time Saved = Current Duration × (Speed Gain % ÷ 100)').should('exist');
   cy.contains('ROI = (Net Benefit ÷ Total Cost) × 100%').should('exist');
 });
@@ -555,7 +557,9 @@ Cypress.Commands.add('shouldCollapseAndExpandFormulas', () => {
 });
 
 Cypress.Commands.add('shouldShowMathematicalFoundationContext', () => {
-  cy.contains('The calculations below form the mathematical foundation for the optimization decision above').should('exist');
+  cy.contains(
+    'The calculations below form the mathematical foundation for the optimization decision above'
+  ).should('exist');
 });
 
 export {};
