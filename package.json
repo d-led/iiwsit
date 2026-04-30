@@ -41,7 +41,7 @@
     "@types/humanize-duration": "^3.27.4",
     "@types/node": "^20.19.25",
     "@vitest/ui": "^4.0.15",
-    "cypress": "^15.7.1",
+    "cypress": "^15.14.2",
     "cypress-multi-reporters": "^2.0.5",
     "cypress-vite": "^1.8.0",
     "daisyui": "^5.5.8",
